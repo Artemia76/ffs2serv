@@ -44,6 +44,7 @@ function delay_time($timeS1, $timeS2)
  * @return STRING contenu crypté avec la clé secondaire de décryptage confondu dans le contenu
  *
  */
+/*
 function encrypt($text, $pkey)
 {
 	$key = $pkey;
@@ -51,7 +52,7 @@ function encrypt($text, $pkey)
 
 	return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_CBC, $IV) . "-[--IV-[-" . $IV);
 }
-
+*/
 /**
  * Dérypte des données selon la péthode AES
  *
@@ -61,6 +62,7 @@ function encrypt($text, $pkey)
  * @return STRING contenu décrypté
  *
  */
+/*
 function decrypt($text, $pkey)
 {
 	$key = $pkey;
@@ -70,7 +72,7 @@ function decrypt($text, $pkey)
 
 	return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_CBC, $IV), "\0");
 }
-
+*/
 
 /**
  * Compile les données de vol et d'appareil
@@ -80,6 +82,7 @@ function decrypt($text, $pkey)
  * @return XML, transmet un fichier XML
  *
  */
+/*
 function sendXML($params)
 {
 	$xml = new SimpleXMLElement("<?xml version='1.0' encoding='UTF-8'?><sitedata  />");
@@ -154,6 +157,7 @@ function sendXML($params)
  * @return STRING contenu crypté avec la clé secondaire de décryptage confondu dans le contenu
  *
  */
+/*
 function xml_extract($text)
 {
 	//$text = file_get_contents('php://input');
@@ -162,7 +166,7 @@ function xml_extract($text)
 
 	return simplexml_load_string($rec_xml);
 }
-
+*/
 function Get_FFST_Files ($folder, $ext = array ('txt'), $recursif = true)
 {
 
