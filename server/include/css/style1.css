@@ -1,0 +1,325 @@
+body {
+   // background: rgb(177, 177, 177) url(http://www.discoveryscience.fr/wp-content/themes/dni_wp_theme_discovery_science/img/bg.jpg) no-repeat center 130px;
+    color: #FFF;
+    background: rgb(177, 177, 177) url('./../images/test_fond_mark5.png') no-repeat center fixed;
+}
+
+.reveal {
+    color: black;
+}
+
+.main {
+    //background: rgb(97, 97, 97);
+    //background: -moz-radial-gradient(center, ellipse cover, rgb(97, 97, 97) 0%, rgb(45, 45, 45) 100%);
+    //background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgb(97, 97, 97)), color-stop(100%, rgb(45, 45, 45)));
+    //background: -webkit-radial-gradient(center, ellipse cover, rgb(97, 97, 97) 0%, rgb(45, 45, 45) 100%);
+    //background: -o-radial-gradient(center, ellipse cover, rgb(97, 97, 97) 0%, rgb(45, 45, 45) 100%);
+    //background: -ms-radial-gradient(center, ellipse cover, rgb(97, 97, 97) 0%, rgb(45, 45, 45) 100%);
+    //background: radial-gradient(ellipse at center, rgb(97, 97, 97) 0%, rgb(45, 45, 45) 100%);
+    //background: rgb(177, 177, 177) url('./includes/images/test_fond_mark5.png') no-repeat center center;
+    margin: auto;
+// width: 1200 px;
+    min-height: 800px;
+}
+
+.fieldset legend {
+    background: #000;
+    color: white;
+    padding: 0 0.1875rem;
+    margin: 0;
+    margin-left: -0.1875rem;
+}
+
+.fieldset {
+    border: 1px solid black;
+    padding: 1.25rem;
+    margin: 1.125rem 0;
+}
+
+.help-text {
+    margin-top: -0.5rem;
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: #FFF;
+}
+
+.off-canvas-content {
+    background: none;
+}
+
+[type='text'], [type='select'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'], textarea {
+    background-color: #FFF3BD;
+}
+
+select {
+    background-color: #FFF3BD;
+}
+
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, p, blockquote, th, td {
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    font-size: 2em;
+    font-weight: normal;
+    margin: 0 0 .4em 0;
+    padding: 0.2em 0.25em;
+    color: rgb(255, 255, 255);
+    text-align: left !important;
+    text-transform: lowercase;
+    background: rgb(0, 0, 0) url('../images/h-bg.jpg') no-repeat 0 0;
+}
+
+.off-canvas-content {
+    background: none;
+}
+
+.header {
+    text-align: center;
+    background: url("../images/header1.png") no-repeat center center;
+    background-size: cover;
+    padding: 4rem;
+}
+
+.header .main-header {
+    color: #666;
+}
+
+hr {
+    max-width: 75rem;
+    height: 0;
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 1px solid #FF8900;
+    border-left: 0;
+    margin: 1.25rem auto;
+    clear: both;
+}
+
+hr
+.postimage {
+    width: 100%
+}
+
+iframe {
+    width: 100%;
+}
+
+.title_h3 {
+
+    background: rgb(0, 0, 0) url('../images/h-bg.jpg') no-repeat 0 0;
+    margin: auto;
+    width: 960px;
+}
+
+.title_h4 {
+    background: url("../images/title_2.png") no-repeat center center;
+    background-size: cover;
+    text-transform: uppercase;
+    color: #FF8900;
+    font-weight: bolder;
+}
+
+.header_title_1 {
+    text-align: center;
+    background: url("../images/title_1.png") no-repeat center center;
+    background-size: cover;
+/ / padding: 6 px 0 px 10 px 0 px;
+    color: #fff;
+    text-transform: uppercase;
+    display: block;
+    font-weight: bold;
+}
+
+.article {
+/ / background-color: #ddd;
+}
+
+.fi-social-facebook {
+    color: dodgerblue;
+    font-size: 2rem;
+}
+
+.fi-social-youtube {
+    color: red;
+    font-size: 2rem;
+}
+
+.fi-social-pinterest {
+    color: darkred;
+    font-size: 2rem;
+}
+
+i.fi-social-instagram {
+    color: brown;
+    font-size: 2rem;
+}
+
+i.fi-social-tumblr {
+    color: navy;
+    font-size: 2rem;
+}
+
+.fi-social-twitter {
+    color: skyblue;
+    font-size: 2rem;
+}
+
+.slogan {
+    color: #666;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+/ / margin-right: 500 px;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1em;
+    text-transform: uppercase;
+}
+
+.top-bar, .top-bar ul {
+    background-color: black;
+}
+
+.is-invalid-input:not(:focus) {
+    color: deeppink;
+}
+
+th {
+    padding: 3px 4px;
+    color: #BDBDBD;
+    background: #32331D;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    text-align: left;
+    font-size: 0.75em;
+    text-transform: uppercase;
+}
+
+tr {
+    padding: 3px 4px;
+    color: BLACK;
+/ / background: #32331D url("../images/gradient2b.gif") bottom left repeat-x;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    text-align: left;
+    font-size: 0.75em;
+    text-transform: uppercase;
+}
+
+.pagination a, .pagination button {
+    color: #FF8900;
+}
+
+.size-12 {
+    font-size: 12px;
+}
+
+.size-14 {
+    font-size: 14px;
+}
+
+.size-16 {
+    font-size: 16px;
+}
+
+.size-18 {
+    font-size: 18px;
+}
+
+.size-21 {
+    font-size: 21px;
+}
+
+.size-24 {
+    font-size: 24px;
+}
+
+.size-36 {
+    font-size: 36px;
+}
+
+.size-48 {
+    font-size: 48px;
+}
+
+.size-60 {
+    font-size: 60px;
+}
+
+.size-72 {
+    font-size: 72px;
+}
+
+.style1 {
+/ / font-size: 70 px;
+    color: #B8D30B;
+}
+
+.style2 {
+/ / font-size: 70 px;
+    color: #2DAEBF;
+    text-shadow: 0px 1px 0px #0092b3, 0px 2px 0px #0087a6, 0px 3px 0px #008099, 0px 4px 0px #00758c, 0px 5px 0px #555, 0px 6px 0px #006a80, 0px 0px 0px #006073, 0px 8px 7px #005566;
+}
+
+.style3 {
+/ / font-size: 70 px;
+    color: #E33100;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #E33100, 0 0 30px #E33100, 0 0 40px #E33100, 0 0 50px #E33100, 0 0 75px #E33100;
+}
+
+.style4 {
+/ / font-size: 70 px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    color: #A9014B;
+}
+
+.style5 {
+/ / font-size: 70 px;
+    color: rgba(245, 159, 26, 0.8);
+    text-shadow: 1px 4px 6px #FFF, 0 0 0 #000, 1px 4px 6px #FFF;
+}
+
+.mini_img {
+   // width: 200px;
+   //// border-radius: 30px;
+  //  margin-left: 20px;
+  //  margin-right: 20px;
+}
+
+.stock_fiche {
+    float: left;
+    height: 300px;
+    border-style: solid;
+    border-radius: 20px;
+    margin: 10px;
+    overflow: hidden;
+    width: 240px;
+    border-color: black;
+}
+
+.stock_fiche_img{
+    max-height: 150px;
+    border-radius: 30px;
+    overflow: hidden;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.stock_fiche_title {
+    border: 1px solid black;
+    background: black;
+    padding: 0.25rem;
+    margin: 1.125rem 0;
+}
+
+#main_content_ps {
+    display: inline-block;
+    width: 100%;
+    //background: rgb(177, 177, 177) url('http://fotomelia.com/wp-content/uploads/edd/2015/07/avion-voyage-vacance-ciel-air-images-photos-gratuites-1560x1036.jpg') no-repeat center 130px;
+}
+.row{
+    //background:rgba(177, 177, 177,0.75);
+}
+
