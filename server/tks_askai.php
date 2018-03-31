@@ -66,15 +66,15 @@ foreach ($my_aircraft_info as $key => $value)
 	similar_text (strtolower($value['title']), strtolower($xml->askai->title), $percent_title);
 
 	if ($percent_title >= 50)
-	{
+		{
 			//echo " test: ".$value['title']." = >".$percent_title."%\n";
-		$my_aircraft_info[$key]['points_title'] = intval ($percent_title / 10);
+			$my_aircraft_info[$key]['points_title'] = intval ($percent_title / 10);
 			/*if($percent_title>=$best_title)
 			{
 			$value2 = intval ($percent_title / 10);
 			$best_title=$percent_title;
-		}*/
-	}
+			}*/
+		}
 }
 
 /*test de l'atc model*/
@@ -83,34 +83,30 @@ foreach ($my_aircraft_info as $key => $value)
 	similar_text (strtolower($value['atc_model']), strtolower($xml->askai->atc_model), $percent_atc);
 
 	if ($percent_atc >= 50)
-	{
-		$my_aircraft_info[$key]['points_atc'] = intval ($percent_atc / 10);
-	}
+		{
+			$my_aircraft_info[$key]['points_atc'] = intval ($percent_atc / 10);
+		}
 }
 
 /*test de poids*/
 
 foreach ($my_aircraft_info as $key => $value)
 {
-	if($max_empty_weight!=0)
+	$my_aircraft_info[$key]['points_weight'] = 10 - ((ABS($my_aircraft_info[$key]['empty_weight']-$db_search->empty_weight)*10)/$max_empty_weight);
+		
+	$result= 10-((ABS($my_aircraft_info[$key]['empty_weight'] - $db_search->empty_weight)*10)/$db_search->empty_weight);
+
+	if($result<0)
 	{
-		$my_aircraft_info[$key]['points_weight'] = 10 - ((ABS($my_aircraft_info[$key]['empty_weight']-$db_search->empty_weight)*10)/$max_empty_weight);
-
-		$result= 10-((ABS($my_aircraft_info[$key]['empty_weight'] - $db_search->empty_weight)*10)/$db_search->empty_weight);
-
-		if($result<0)
-		{
-			$my_aircraft_info[$key]['points_weight'] =0;
-		}
-		else if($result>10)
-		{
-			$my_aircraft_info[$key]['points_weight'] =10;
-		}
-		else{
-			$my_aircraft_info[$key]['points_weight'] =$result;
-		}
+		$my_aircraft_info[$key]['points_weight'] =0;
 	}
-	
+	else if($result>10)
+	{
+		$my_aircraft_info[$key]['points_weight'] =10;
+	}
+	else{
+		$my_aircraft_info[$key]['points_weight'] =$result;
+	}
 
 
 }
