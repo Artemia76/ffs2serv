@@ -1,109 +1,198 @@
-<?php
-//activation de la protection recursive pour les éléments qui seront intégrés
-define ('PROTECTIONINCLUDE', TRUE);
+<?php 
+error_reporting(E_ALL);
+$data_xml;
 
-//intégration de fichier de configuration général du site
-require_once ('./config/config_gen.php');
+define ('debug_ffst',true);
 
-//intégration de fichier de configuration général du site
-require_once ('./config/config_aux.php');
-
-//intégration du compilateur de sortie  XML et de ses outils
-require_once ('./core/function/tracker.php');
-
-//intégration du gestionnaire de class site
-require_once ('./core/app/Auto_loader.php');
-
-//intégration des messages d'erreur ou de communication normale
-require_once ('./config/message.php');
-
-//chargeur d'objet PHP
-Auto_loader::register ();
-//création instance de l'objet de message d'erreur ou normaux
-$inter_com= New Erreur();
-//création de la variable principale de communication XML
-$data=array();
-
-$data["AI_Management"] = "true";
-$data["Carriere"] = "false";
-$data["Free_flight"] = "false";
-$data["online"] = "true";
-
-$licence='A9S/F5qjZILJ+XBN8JFAZvXTX5Rf+T4h7Pmk70PvUKU2CZRCSMYB+o89BN1bHmolt4QMuE1KIdttwRxloUxHZMBLeITg/w17ElCuO2zqBnPnJFWi8eybM9T4uKgzEkhtL4y8W2EeexKVe';
-
-//ouverture et décompilation du fichier log
-$log=unserialize(file_get_contents('./bd_light/log.php'));
-//ouverture et décompilation de la liste des joueurs
-$list_player=unserialize(file_get_contents('./bd_light/list_player.php'));
-//ouverture et décompilation de la liste des joueurs bannis
-$players_ban=unserialize(file_get_contents('./bd_light/ban_players.php'));
+//calcul d'une date antérieur de 5 minutes
+$now = date ("Y-m-d H:i:s");
+$date = new DateTime($now);
+$date->sub (new DateInterval('PT5M'));
+$m_5_minutes = $date->format ("Y-m-d H:i:s");
+$date = new DateTime($now);
+$date->sub (new DateInterval('PT2M'));
+$m_2_minutes = $date->format ("Y-m-d H:i:s");
+$date = new DateTime($now);
+$date->sub (new DateInterval('PT35S'));
+$m_35_secondes = $date->format ("Y-m-d H:i:s");
 
 
+
+
+try
+{
+	//tentative de chargement des classes de E107
+	if (! @include_once("./class2.php"))
+		throw new Exception ("Votre E107 est introuvable");
+	
+	//tentative de chargement du protocole xml
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/xml.php"))
+		throw new Exception ("Votre systéme XML est introuvable");
+	
+	//tentative de chargement des protocoles de cryptage
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Random.php"))
+		throw new Exception ("Votre élément de cryptage Random  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Base.php"))
+		throw new Exception ("Votre élément de cryptage Base  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Rijndael.php"))
+		throw new Exception ("Votre élément de cryptage Rijndael  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Hash.php"))
+		throw new Exception ("Votre élément de cryptage Hash  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Math/BigInteger.php"))
+		throw new Exception ("Votre élément de cryptage BigInteger  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/RSA.php"))
+		throw new Exception ("Votre élément de cryptage RSA  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/AES.php"))
+		throw new Exception ("Votre élément de cryptage AES  est introuvable");
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/crypto.php"))
+		throw new Exception ("Le systéme de cryptage simplifié est introuvable");
+
+	//tentative de chargement des logs
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/erreur_log.php"))
+		throw new Exception ("Le systéme d'inter-com est introuvable");
+	//tentative de chargement des sessions
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/Session_mp.php"))
+		throw new Exception ("Le systéme de sessions est introuvable");
+
+	//tentative de chargement du gestionnaire de carte
+	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/map_data.php"))
+		throw new Exception ("Le gestionnaire de carte est introuvable");
+
+	//vérification de l'initialisation de E107
+	if (!defined('e107_INIT'))
+		throw new Exception ("Votre E107 n'est pas initialisé");
+}
+catch (Exception $e) {
+	//en cas de soucis on affiche l'origine du dysfonctionnement
+	echo $e->getMessage();
+	//on stop l'execution du programme
+	die;
+}
+
+//initialisation de l'objet pour les messages de retour sur FFSTracker
+$inter_com = New Erreur();
+
+
+
+//si des données arrive par la méthode POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-	$xml = xml_extract (file_get_contents ('php://input'));
-	$username =  strval ($xml->verify->pilotID);
-	$password = $xml->verify->password;
-	$ban=false;
+	//vérification du format de l'ip en IP V4
+	preg_match_all('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $_SERVER["REMOTE_ADDR"], $good_ip, PREG_SET_ORDER, 0);
 
-	foreach ($players_ban as $key => $value)//parcours de la liste des joueurs bannis à la recherche d'une consigne de banissement
+	//si l'ip est bien au format IP V4
+	if(count($good_ip)>0)
 	{
-		if(trim($value['serial'])==trim(strval($xml->serial)))//si le numéro de série du disque dur est en mémoire
+		$data_xml["your_ip"]=$_SERVER["REMOTE_ADDR"];
+		//on extrait les données XML
+		$xml = xml_extract (file_get_contents ('php://input'));
+
+		//si le logiciel client est FFS2play on utilise le dernier mod de cryptographie
+		if($xml->version=='ffs2core_2_0_0'){$new_gen_aes=true;}
+		else{$new_gen_aes=false;}
+
+		//initialisation de la bd E107
+		$sql = e107::getDb();
+
+		//recherche de l'activation ou nom du mod atc
+		$data_xml['atc']=$sql->retrieve("tks_security", "value","name='ATC_mod'");
+
+		//recherche de la licence du site
+		$data_xml["licence"]=$sql->retrieve("tks_security", "value","name='licence'");
+
+		// si le client fait une demande de cryptage dynamique
+		if (strtolower ($xml->switch->data) == "hello")
 		{
-			$ban=true;//le joueur est banni
+			try
+			{
+				//tentative de chargement du gestionnaire de cryptage dynamique
+				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/hello_world.php"))
+					throw new Exception ("Gestionnaire de cryptage dynamique  est introuvable");
+			}
+			catch (Exception $e)
+			{
+				//en cas de soucis on affiche l'origine du dysfonctionnement
+				echo $e->getMessage();
+				//on stop l'execution du programme
+				die;	
+			}
+		}
+
+		// si le client fait une demande d'authentification
+		if (strtolower ($xml->switch->data) == "verify")
+		{
+			try
+			{
+				//tentative de chargement du gestionnaire d'authentification
+				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/verify.php"))
+					throw new Exception ("Gestionnaire d'authentification  est introuvable");
+			}
+			catch (Exception $e)
+			{
+				//en cas de soucis on affiche l'origine du dysfonctionnement
+				echo $e->getMessage();
+				//on stop l'execution du programme
+				die;	
+			}
+		}
+
+		// si le client fait une demande de mise à jours
+		if (strtolower ($xml->switch->data) == "liveupdate")
+		{
+			try
+			{
+				//tentative de chargement du gestionnaire de mise à jours
+				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/liveupdate.php"))
+					throw new Exception ("Gestionnaire de mise à jours  est introuvable");
+			}
+			catch (Exception $e)
+			{
+				//en cas de soucis on affiche l'origine du dysfonctionnement
+				echo $e->getMessage();
+				//on stop l'execution du programme
+				die;	
+			}
+		}
+
+		// si le client fait une demande de mise à jours
+		if (strtolower ($xml->switch->data) == "atc")
+		{
+			try
+			{
+				//tentative de chargement du gestionnaire de mise à jours
+				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/live_atc.php"))
+					throw new Exception ("Gestionnaire de live atc est introuvable");
+			}
+			catch (Exception $e)
+			{
+				//en cas de soucis on affiche l'origine du dysfonctionnement
+				echo $e->getMessage();
+				//on stop l'execution du programme
+				die;	
+			}
 		}
 	}
-
-	if ($ban==false)//si le joueur n'est pas banni
+	else
 	{
-		if ($xml->switch->data == "verify")//si on demande une authentification
-		{
-			require ('./tks_verify.php');
-		}
-
-		if ($xml->switch->data == "liveupdate")//si on demande une mise à jours de la position
-		{
-			require ('./tks_liveupdate.php');
-		}
-
-		if (($xml->switch->data == "syncai" or $xml->switch->data == "sendai") and defined ('FFS2_ask'))//si on demande à synchroniser les appareils et que l'option est active
-		{
-			require ('./tks_syncai.php');
-		}
-		else
-		{
-			$data['empty'] = '0';
-		}
-
-		if ($xml->switch->data == "askai" and defined ('FFS2_ask'))//si on demande à remplacer les appareils et que l'option est active
-		{
-			require ('./tks_askai.php');
-		}
-		else
-		{
-			$data['empty'] = '0';
-		}
+		$inter_com->addMessage (219,$msg);//Votre ip ne correspond pas aux normes IPV4.
+		$inter_com->addMessage (201,$msg);//Connexion avec FFSTracker interrompue...
+		$inter_com->addMessage (2,$msg);//Bonne fin de journée
+		$data_xml['loginStatus'] = '0';//on refuse la connexion
 	}
-	else//sinon
-	{
-		$data['loginStatus'] = '0';//on refuse la connexion
-		$inter_com->addError (502, $msg);//on préviens le client de la raison de refus de connexion
-	}
-	
-}
-if ($inter_com->getMessage () != NULL)//si des messages de com doivent être envoyés
-{
-	$data["erreur"] = $inter_com->getMessage ();// on les stocks dans la variable de communication xml
-}
-if ($inter_com->getError () != NULL)//si des messages d'erreur' doivent être envoyés
-{
-	$data["erreur2"] = $inter_com->getError ();// on les stocks dans la variable de communication xml
 }
 
-sendXML ($data);
-//compilation et enregistrement du fichier log
-file_put_contents('./bd_light/log.php',serialize($log));
-//compilation et enregistrement de la liste des joueurs bannis
-file_put_contents('./bd_light/list_player.php',serialize($list_player));
+//Rajout des messages dans le XML
+if ($inter_com->getMessage () != NULL)
+	{$data_xml["erreur"] = $inter_com->getMessage ();}
+if ($inter_com->getWarning () != NULL)
+	{$data_xml["erreur1"] = $inter_com->getWarning ();}
+if ($inter_com->getError () != NULL)
+	{$data_xml["erreur2"] = $inter_com->getError ();}
+if ($inter_com->getDebug () != NULL)
+	{$data_xml["erreur3"] = $inter_com->getDebug ();}
+
+$data2=pre_xml($data_xml);
+$xml = new Array2XML();
+print  $xml->buildXML($data2);
 
 ?>
