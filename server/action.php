@@ -22,45 +22,45 @@ $m_35_secondes = $date->format ("Y-m-d H:i:s");
 try
 {
 	//tentative de chargement des classes de E107
-	if (! @include_once("./class2.php"))
-		throw new Exception ("Votre E107 est introuvable");
+	//if (! @include_once("./class2.php"))
+	//	throw new Exception ("Votre E107 est introuvable");
 	
 	//tentative de chargement du protocole xml
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/xml.php"))
+	if (! @include_once("./class/xml.php"))
 		throw new Exception ("Votre systéme XML est introuvable");
 	
 	//tentative de chargement des protocoles de cryptage
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Random.php"))
+	if (! @include_once("./class/phpseclib/Crypt/Random.php"))
 		throw new Exception ("Votre élément de cryptage Random  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Base.php"))
+	if (! @include_once("./class/phpseclib/Crypt/Base.php"))
 		throw new Exception ("Votre élément de cryptage Base  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Rijndael.php"))
+	if (! @include_once("./class/phpseclib/Crypt/Rijndael.php"))
 		throw new Exception ("Votre élément de cryptage Rijndael  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/Hash.php"))
+	if (! @include_once("./class/phpseclib/Crypt/Hash.php"))
 		throw new Exception ("Votre élément de cryptage Hash  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Math/BigInteger.php"))
+	if (! @include_once("./class/phpseclib/Math/BigInteger.php"))
 		throw new Exception ("Votre élément de cryptage BigInteger  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/RSA.php"))
+	if (! @include_once("./class/phpseclib/Crypt/RSA.php"))
 		throw new Exception ("Votre élément de cryptage RSA  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/phpseclib/Crypt/AES.php"))
+	if (! @include_once("./class/phpseclib/Crypt/AES.php"))
 		throw new Exception ("Votre élément de cryptage AES  est introuvable");
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/crypto.php"))
+	if (! @include_once("./class/crypto.php"))
 		throw new Exception ("Le systéme de cryptage simplifié est introuvable");
 
 	//tentative de chargement des logs
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/erreur_log.php"))
+	if (! @include_once("./class/erreur_log.php"))
 		throw new Exception ("Le systéme d'inter-com est introuvable");
 	//tentative de chargement des sessions
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/Session_mp.php"))
+	if (! @include_once("./class/Session_mp.php"))
 		throw new Exception ("Le systéme de sessions est introuvable");
 
 	//tentative de chargement du gestionnaire de carte
-	if (! @include_once("./".e_PLUGIN."mark_42_multi/class/map_data.php"))
+	if (! @include_once("./class/map_data.php"))
 		throw new Exception ("Le gestionnaire de carte est introuvable");
 
 	//vérification de l'initialisation de E107
-	if (!defined('e107_INIT'))
-		throw new Exception ("Votre E107 n'est pas initialisé");
+	//if (!defined('e107_INIT'))
+	//	throw new Exception ("Votre E107 n'est pas initialisé");
 }
 catch (Exception $e) {
 	//en cas de soucis on affiche l'origine du dysfonctionnement
@@ -91,22 +91,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 		if($xml->version=='ffs2core_2_0_0'){$new_gen_aes=true;}
 		else{$new_gen_aes=false;}
 
-		//initialisation de la bd E107
-		$sql = e107::getDb();
-
-		//recherche de l'activation ou nom du mod atc
-		$data_xml['atc']=$sql->retrieve("tks_security", "value","name='ATC_mod'");
-
-		//recherche de la licence du site
-		$data_xml["licence"]=$sql->retrieve("tks_security", "value","name='licence'");
-
 		// si le client fait une demande de cryptage dynamique
 		if (strtolower ($xml->switch->data) == "hello")
 		{
 			try
 			{
 				//tentative de chargement du gestionnaire de cryptage dynamique
-				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/hello_world.php"))
+				if (! @include_once("./multi/hello_world.php"))
 					throw new Exception ("Gestionnaire de cryptage dynamique  est introuvable");
 			}
 			catch (Exception $e)
@@ -124,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 			try
 			{
 				//tentative de chargement du gestionnaire d'authentification
-				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/verify.php"))
+				if (! @include_once("./multi/verify.php"))
 					throw new Exception ("Gestionnaire d'authentification  est introuvable");
 			}
 			catch (Exception $e)
@@ -142,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 			try
 			{
 				//tentative de chargement du gestionnaire de mise à jours
-				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/liveupdate.php"))
+				if (! @include_once("./multi/liveupdate.php"))
 					throw new Exception ("Gestionnaire de mise à jours  est introuvable");
 			}
 			catch (Exception $e)
@@ -160,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 			try
 			{
 				//tentative de chargement du gestionnaire de mise à jours
-				if (! @include_once("./".e_PLUGIN."mark_42_multi/multi/live_atc.php"))
+				if (! @include_once("./multi/live_atc.php"))
 					throw new Exception ("Gestionnaire de live atc est introuvable");
 			}
 			catch (Exception $e)
