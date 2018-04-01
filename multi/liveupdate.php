@@ -39,33 +39,39 @@
 			$slot = New Session_mp($data_uns['pilotname'], 'pilotname');
 			$slot->update_my_slot ();
 
-			//var_dump ($slot);
 		}
-
 	}
 
-	//var_dump ($slot->pu_key);
-
 	foreach ($players as $player) {
-		$key_a++;
-		//$player_data = file_get_contents($player);
-		$data_uns = unserialize (file_get_contents ($player));
-
-		if ($data['key_f'] != $xml->switch->key) {
-
-
-			$data_whazzup[$key_a]["name"] = $data_uns['pilotname'];
-			//cryptage des ip
-			$data_whazzup[$key_a]["ip"] = encrypt ($data_uns["ip"], base64_decode ($slot->pu_key), $new_gen_aes);
-			//info de l'IP local
-			$data_whazzup[$key_a]["local_ip"]   = $data_uns["local_ip"];
-			$data_whazzup[$key_a]["port"]       = $data_uns["port"];
-			$data_whazzup[$key_a]["server"]     = $data_uns["server"];
-			$data_whazzup[$key_a]["lastupdate"] = $data_uns["lastupdate"];
-			$data_whazzup[$key_a]['position']   = "icao";
-
-
+		if (filemtime ($player) < (time () - 40)) //on vérifie que ce fichier et moins vieux que 60 seconde
+		{
+			//unlink ($player);
 		}
+		else{
+
+			$key_a++;
+			//$player_data = file_get_contents($player);
+			$data_uns = unserialize (file_get_contents ($player));
+
+			if ($data['key_f'] != $xml->switch->key) {
+
+
+				$data_whazzup[$key_a]["name"] = $data_uns['pilotname'];
+				//cryptage des ip
+				$data_whazzup[$key_a]["ip"] = encrypt ($data_uns["ip"], base64_decode ($slot->pu_key), $new_gen_aes);
+				//info de l'IP local
+				$data_whazzup[$key_a]["local_ip"]   = $data_uns["local_ip"];
+				$data_whazzup[$key_a]["port"]       = $data_uns["port"];
+				$data_whazzup[$key_a]["server"]     = $data_uns["server"];
+				$data_whazzup[$key_a]["lastupdate"] = $data_uns["lastupdate"];
+				$data_whazzup[$key_a]['position']   = "icao";
+
+
+			}
+		}
+
+
+
 
 		//$slot = New Session_mp($username);
 
@@ -75,7 +81,7 @@
 		//var_dump ($data);
 
 
-		if (filemtime ($value) > (time () - 40)) //on vérifie que ce fichier et moins vieux que 60 seconde
+		if (filemtime ($value) < (time () - 40)) //on vérifie que ce fichier et moins vieux que 60 seconde
 		{
 			//$data_multiplayer[$key] = require ($value);
 			//$nb_player++;
