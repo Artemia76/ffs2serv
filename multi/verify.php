@@ -50,5 +50,5 @@
 	//on retourne la clé d'identification rapide et la liste des joueurs déjà présents
 	$data_xml["key"]         = $slot->key_f;
 	$data_xml['loginStatus'] = '1';//on accepte la connexion
-	$data_xml["whazzup"]     = Session_mp::get_whazzup ($slot->server, $slot->pilotname, $send_AES_key);
+	$data_xml["whazzup"]     = Session_mp::get_whazzup ($slot->server, $send_AES_key);
 ?>

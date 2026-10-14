@@ -107,18 +107,18 @@ class Session_mp
 	}
 
 	/**
-	 * Liste des joueurs actifs sur un serveur, à l'exception de $exclude
+	 * Liste des joueurs actifs sur un serveur, demandeur compris : le client ignore sa propre
+	 * entrée, sauf en mode "shadow" où il crée un pair superposé pour tester le P2P en boucle locale
 	 *
 	 * @param Int $server, numéro du serveur à lister
-	 * @param String $exclude, pseudo du joueur demandeur
 	 * @param String $crypt_key, clé AES (binaire) utilisée pour crypter les IP
 	 * @return Array, tableau des joueurs prêt pour pre_xml()
 	 */
-	public static function get_whazzup ($server, $exclude, $crypt_key)
+	public static function get_whazzup ($server, $crypt_key)
 	{
 		$whazzup = array ();
 		foreach (self::all_slots () as $data) {
-			if (!isset ($data['pilotname'], $data['lastupdate']) or $data['pilotname'] === $exclude) {
+			if (!isset ($data['pilotname'], $data['lastupdate'])) {
 				continue;
 			}
 			if ($data['lastupdate'] < time () - self::ACTIVE_DELAY or intval ($data['port']) === 0) {

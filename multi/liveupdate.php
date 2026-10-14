@@ -17,6 +17,6 @@
 
 	$slot->update_my_slot ();
 
-	//renvoi des autres joueurs présents, avec leur IP cryptée par la clé AES du demandeur
-	$data_xml["whazzup"] = Session_mp::get_whazzup ($slot->server, $slot->pilotname, base64_decode ($slot->pu_key));
+	//renvoi des joueurs présents (demandeur compris, pour le mode shadow), IP cryptées par la clé AES du demandeur
+	$data_xml["whazzup"] = Session_mp::get_whazzup ($slot->server, base64_decode ($slot->pu_key));
 ?>

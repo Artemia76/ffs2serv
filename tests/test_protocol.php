@@ -79,14 +79,19 @@ try {
 	check_equal ('1', strval ($login_a->loginStatus), 'verify : connexion acceptée');
 	check (preg_match ('/^[0-9a-f]{32}$/', strval ($login_a->key)) === 1, 'verify : clé de rappel aléatoire');
 	check_equal ('127.0.0.1', strval ($login_a->your_ip), 'verify : IP publique renvoyée');
-	check (isset ($login_a->whazzup) and count ($login_a->whazzup->children ()) === 0, 'verify : whazzup vide présent');
+	check_equal (array ('Alpha'), whazzup_names ($login_a), 'verify : le joueur se voit lui-même (mode shadow)');
 
 	list ($login_b, $key_b) = client_login ($port, 'Bravo_2', $password, $local_ip_b);
 	check_equal ('1', strval ($login_b->loginStatus), 'verify : second joueur accepté');
-	check_equal (array ('Alpha'), whazzup_names ($login_b), 'verify : le second joueur voit le premier');
+	$names = whazzup_names ($login_b);
+	sort ($names);
+	check_equal (array ('Alpha', 'Bravo_2'), $names, 'verify : le second joueur voit le premier et lui-même');
 
 	$update = client_request ($port, 'liveupdate', strval ($login_a->key));
-	check_equal (array ('Bravo_2'), whazzup_names ($update), 'liveupdate : liste sans le demandeur');
+	$names = whazzup_names ($update);
+	sort ($names);
+	check_equal (array ('Alpha', 'Bravo_2'), $names, 'liveupdate : liste complète, demandeur compris');
+	check_equal ('127.0.0.1', decrypt (strval ($update->whazzup->Alpha['ip']), $key_a, TRUE), 'liveupdate : propre entrée décryptable (mode shadow)');
 	$bravo = $update->whazzup->Bravo_2;
 	check_equal ('127.0.0.1', decrypt (strval ($bravo['ip']), $key_a, TRUE), 'liveupdate : IP cryptée avec la clé du demandeur');
 	check_equal ($local_ip_b, strval ($bravo['local_ip']), 'liveupdate : IP locales transmises telles quelles');
@@ -110,7 +115,13 @@ try {
 
 	client_request ($port, 'logout', strval ($login_b->key));
 	$update = client_request ($port, 'liveupdate', strval ($login_a->key));
-	check (isset ($update->whazzup) and count ($update->whazzup->children ()) === 0, 'logout : le joueur disparaît de la liste');
+	check_equal (array ('Alpha'), whazzup_names ($update), 'logout : le joueur disparaît de la liste');
+
+	client_request ($port, 'logout', strval ($login_a->key));
+	list ($login_c) = client_login ($port, 'Charlie', $password, $local_ip_a, '127.0.0.2');
+	client_request ($port, 'logout', strval ($login_c->key));
+	$update = client_request ($port, 'liveupdate', strval ($login_c->key));
+	check_equal ('2', strval ($update->erreur['error']), 'logout : la clé de rappel n\'est plus valide');
 
 	$garbage = client_request ($port, 'pas du xml', '');
 	check ($garbage !== false, 'requête quelconque : réponse XML valide');
