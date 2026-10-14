@@ -1,0 +1,24 @@
+# Environnement de développement : http://localhost:8080 (installeur au premier lancement)
+#   docker compose up -d
+#   docker compose exec web php tests/run.php        (tests, base ffs2play_test)
+services:
+  web:
+    build: { context: ., dockerfile: docker/Dockerfile }
+    ports: [ "8080:80" ]
+    volumes: [ ".:/var/www/html" ]
+    environment:
+      FFS2_TEST_DB_HOST: db
+      FFS2_TEST_DB_NAME: ffs2play_test
+      FFS2_TEST_DB_USER: root
+      FFS2_TEST_DB_PASS: root
+    depends_on: [ db ]
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: ffs2play
+      MARIADB_USER: ffs2play
+      MARIADB_PASSWORD: ffs2play
+    volumes: [ "db-data:/var/lib/mysql" ]
+volumes:
+  db-data:
