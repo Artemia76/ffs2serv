@@ -13,7 +13,11 @@
     var arrival = JSON.parse(node.dataset.arrival || 'null');
 
     var map = L.map(node);
-    L.tileLayer(node.dataset.tiles, { maxZoom: 18, attribution: node.dataset.attribution }).addTo(map);
+    L.tileLayer(node.dataset.tiles, {
+        maxZoom: 18,
+        attribution: node.dataset.attribution,
+        referrerPolicy: 'strict-origin-when-cross-origin'
+    }).addTo(map);
 
     var points = track.map(function (p) { return [p[0], p[1]]; });
     if (departure) { points.unshift(departure); }

@@ -19,7 +19,12 @@
     };
 
     var map = L.map('live-map', { worldCopyJump: true }).setView([46.5, 2.5], 5);
-    L.tileLayer(root.dataset.tiles, { maxZoom: 18, attribution: root.dataset.attribution }).addTo(map);
+    L.tileLayer(root.dataset.tiles, {
+        maxZoom: 18,
+        attribution: root.dataset.attribution,
+        // politique d'utilisation des tuiles OpenStreetMap : Referer obligatoire
+        referrerPolicy: 'strict-origin-when-cross-origin'
+    }).addTo(map);
 
     var markers = {};
     var trails = {};
