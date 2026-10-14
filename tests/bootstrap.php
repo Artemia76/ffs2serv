@@ -124,15 +124,17 @@ final class Browser
     }
 }
 
-/** Dernier e-mail écrit par le transport « fichier » */
-function last_mail(string $storage): string
+/** Dernier e-mail écrit par le transport « fichier » (pour un destinataire donné si précisé) */
+function last_mail(string $storage, string $to = ''): string
 {
     $files = glob($storage . '/mail/*.eml') ?: [];
-    sort($files);
-    if (!$files) {
-        return '';
+    rsort($files);
+    foreach ($files as $file) {
+        $raw = (string) file_get_contents($file);
+        [$headers, $body] = explode("\r\n\r\n", $raw, 2) + ['', ''];
+        if ($to === '' || stripos($headers, "\r\nTo: $to\r\n") !== false) {
+            return $headers . "\n\n" . base64_decode(str_replace(["\r", "\n"], '', $body));
+        }
     }
-    $raw = (string) file_get_contents(end($files));
-    [$headers, $body] = explode("\r\n\r\n", $raw, 2) + ['', ''];
-    return $headers . "\n\n" . base64_decode(str_replace(["\r", "\n"], '', $body));
+    return '';
 }

@@ -11,7 +11,7 @@ function register_pilot(string $base, string $storage, string $callsign, string 
     $browser->get('/register');
     $browser->post('/register', ['callsign' => $callsign, 'email' => strtolower($callsign) . '@example.org',
         'password' => $password, 'password_confirmation' => $password]);
-    if (preg_match('#/verify\?token=([0-9a-f]{64})#', last_mail($storage), $m)) {
+    if (preg_match('#/verify\?token=([0-9a-f]{64})#', last_mail($storage, strtolower($callsign) . '@example.org'), $m)) {
         $browser->get('/verify?token=' . $m[1]);
     }
     return $browser;
@@ -31,7 +31,7 @@ $alpha->post('/register', ['callsign' => '1nvalide', 'email' => 'x@example.org',
 check(str_contains($alpha->body, "L&#039;indicatif doit"), 'inscription : indicatif invalide refusé');
 $alpha->post('/register', ['callsign' => 'Alpha', 'email' => 'alpha@example.org', 'password' => 'alpha-password', 'password_confirmation' => 'alpha-password']);
 check_equal(303, $alpha->status, 'inscription : compte créé');
-$mail = last_mail($storage);
+$mail = last_mail($storage, 'alpha@example.org');
 check(str_contains($mail, 'alpha@example.org') && preg_match('#/verify\?token=([0-9a-f]{64})#', $mail, $token) === 1, 'inscription : e-mail de validation envoyé');
 
 $alpha->get('/login');
@@ -123,7 +123,7 @@ check_equal(403, $bravo->status, "un équipier ne peut pas dissoudre l'équipe")
 $forgot = new Browser($base);
 $forgot->get('/forgot');
 $forgot->post('/forgot', ['email' => 'alpha@example.org']);
-check(preg_match('#/reset\?token=([0-9a-f]{64})#', last_mail($storage), $reset) === 1, 'mot de passe oublié : lien envoyé');
+check(preg_match('#/reset\?token=([0-9a-f]{64})#', last_mail($storage, 'alpha@example.org'), $reset) === 1, 'mot de passe oublié : lien envoyé');
 $forgot->get('/reset?token=' . $reset[1]);
 $forgot->post('/reset', ['token' => $reset[1], 'password' => 'alpha-new-password', 'password_confirmation' => 'alpha-new-password']);
 $forgot->follow();

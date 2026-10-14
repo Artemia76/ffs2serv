@@ -86,7 +86,9 @@ final class Mailer
         if (!is_dir($dir) && !mkdir($dir, 0750, true) && !is_dir($dir)) {
             throw new \RuntimeException("Impossible de créer $dir");
         }
-        $file = sprintf('%s/%s-%s.eml', $dir, gmdate('YmdHis'), bin2hex(random_bytes(4)));
+        // horodatage à la microseconde : les fichiers se trient dans l'ordre d'envoi
+        $time = microtime(true);
+        $file = sprintf('%s/%s%06d-%s.eml', $dir, gmdate('YmdHis', (int) $time), (int) (($time - floor($time)) * 1e6), bin2hex(random_bytes(4)));
         file_put_contents($file, $this->formatHeaders($headers) . "\r\n\r\n" . $body . "\r\n");
     }
 
