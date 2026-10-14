@@ -1,4 +1,7 @@
 <?php
+if (!defined ('PROTECTIONINCLUDE')) {
+	die('Accès Interdit');
+}
 
 $msg = array();
 //0 à 100 normal
@@ -45,6 +48,7 @@ $msg[217]="Vous allez être redirigé vers le serveur public.(e) \n";
 $msg[218]="Ce pseudo est déja en cours d'utilisation. Patientez 30 secondes ou prenez un autre pseudo.(e) \n";
 $msg[219]="Votre ip ne correspond pas aux normes IPV4(e). \n";
 $msg[220]="Impossible d'actualiser votre Slot de connexion.(e) \n";
+$msg[221]="Pseudo invalide : 32 caractères maximum parmi lettres, chiffres, _ - . é è à, en commençant par une lettre.(e) \n";
 
 
 

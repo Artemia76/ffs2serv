@@ -1,430 +1,282 @@
-<?php 
-
-/**
- *	Base class for FFS multi
- *
- *	@package e107_plugins
- *	@subpackage tks_mp
- */
-
-
-
-class Session_mp
-{
-	protected $id;//clé unique dans la base de données
-	protected $pilot_id;//l'identifiant du pilote
-	protected $ip;//l'IP distance du pilote
-	protected $local_ip;//l'IP local du pilote
-	protected $pilotname;//nom du pilote
-	protected $port;//port de communication
-	protected $pu_key=null;//clé de décryptage
-	protected $key_f;//clé de rappel
-	protected $attached;//objet de carriére auquel est rattaché cette clé de rappel
-	protected $server=0;//serveur auquel le joueur est connecté, 0=serveur public
-	protected $tx_mod=1;//méthode de transmition, 0=null, 1=normal...
-	protected $lastupdate;//dernier date ou le slot à été réservé
-	private $err_obj=NULL;
-
-	protected $attr_reader = array();
-	protected $attr_writer = array ();
-
-	//tableau de gestion pour l'accés en lecture des attributs, si l'attribut n'est pas dans la liste, il ne pourra pas être lu à la volé
-	protected $Mp_slot_attr = array('id', 'pilot_id', 'ip','local_ip', 'pilotname', 'online', 'port','pu_key','key_f','attached','server', 'tx_mod', 'lastupdate', 'err_obj');
-	//tableau de gestion pour l'accés en écriture des attributs, si l'attribut n'est pas dans la liste, il ne pourra pas être écris à la volé
-	protected $Mp_slot_attw = array();
-
-	/**
-	* chargeur des définitions lisible et inscritible
-	* les attributs attr_reader et attr_writer seront remplis par la classe mére est ses filles
-	*
-	* @param Array $attr: variable autorisé à la lecture
-	* @param Array $attw: variable autorisé à l'écriture
-	* @return Aucun
-	*/
-	protected function set_atrw($attr,$atw)
-	{
-		foreach ($attr as $key => $value){if(!in_array($value, $this->attr_reader)){$this->attr_reader[]=$value;}}
-		foreach ($atw as $key => $value){if(!in_array($value, $this->attr_writer)){$this->attr_writer[]=$value;}}
-	}
-
-	/**
-	* gestionnaire des accés en lecture
-	*
-	* @param String $attribute: attribut dont les droits de lecture sont à tester
-	* @return si les droits sont valident l'attribut est retourné sinon un message d'erreur est stocké
-	*/
-	
-	function __get ($attribute)
-	{
-		if (in_array ($attribute, $this->attr_reader)){return $this->$attribute;}
-		else
-		{
-			echo $msg = get_class ($this) . " Signal: Accés à la lecture refusé pour la variable '$" . $attribute . "'";
-			self::add_error ($msg);
-
-		}
-	}
-
-	/**
-	* gestionnaire des accés en écriture
-	*
-	* @param String $attribute: attribut dont les droits d'écriture sont à tester
-	* @return si les droits sont valident l'attribut est modifié sinon un message d'erreur est stocké
-	*/
-	function __set ($attribute, $value)
-	{
-		if (in_array ($attribute, $this->attr_writer))
-		{
-			$data = array ($attribute => $value,);
-			self::hydrate ($data);
-		}
-		else
-		{
-			echo $msg = get_class ($this) . " Signal: Accés à l'écriture refusé pour la variable '$" . $attribute . "'";
-			self::add_error ($msg);
-		}
-	}
-
-	/**
-	* A l'initialisation de l'objet, l'objet sera vierge
-	*
-	* @param Int $aircraft
-	* @param String $type
-	*/
-	public function __construct($data,$mod='pilotname')
-	{
-		self::set_atrw($this->Mp_slot_attr,$this->Mp_slot_attw);
-
-		//$players=Get_FFST_Files ('./nobd/Session_mp',  array ("php"), $recursif = true);
-
-
-
-		//$sql = e107::getDb();
-		if($mod=='pilotname')
-		{
-			$player=file_get_contents('./nodb/Session_mp/'.$data.'.ser');
-
-			$datas = unserialize($player);
-			self::hydrate ($datas);
-		}
-		elseif($mod=='key_f')
-		{}
-		
-
-	}
-
-
-	/**
-	* Fonction d'hydratation permettant le remplissage de l'objet
-	*
-	* @param Array , tableau des données à mettre en attributs
-	*/
-	protected function hydrate ($data)
-	{
-		if ($data != FALSE)
-		{
-			foreach ($data as $key => $value)
-			{
-				$method = 'set' . ucfirst ($key);
-
-				if (method_exists ($this, $method)){$this->$method($value);}
-				else{$this->$key=$value;}
-			}
-		}
-		return;
-	}
-
-	/**
-	* Fonction de récupération des joueurs présents sur un serveur
-	*
-	* @param Int $server, numéro du serveur à lister
-	* @param String $New_crypt, clé à utilisé pour l'encryptage des donnés
-	* @param Bool $FFS2_PLAY, utilisation de la derniére génération de cryptage pour le client C++
-	* @return Array $data, tableaux de tous les joueurs connecté au même serveur
-	*/
-	public function get_other_slot($server=0,$New_crypt=false,$FFS2_PLAY=false,$TX_MOD=0)
-	{
-		//création de date limite de validité de la connexion
-		$now = $date = date("Y-m-d H:i:s");
-		$date = new DateTime($now);
-		$date->sub(new DateInterval('PT35S'));
-		$time = $date->format("Y-m-d H:i:s");
-
-		//interrogation de la base de donnée avec la limite de temps
-		$sql = e107::getDb();
-		//$TX_MOD=0;
-		if($TX_MOD==0)
-		{
-			$sql->select("tks_mp", "*","(`lastupdate` between  '". $time ."' and '" . $now . "') and server= '" . $server . "'");
-		}
-		else
-		{
-			$sql->select("tks_mp", "*","(`lastupdate` between  '". $time ."' and '" . $now . "') and (server= '" . $server . "' or tx_mod= '1')");
-			//echo "(`lastupdate` between  '". $time ."' and '" . $now . "') and (server= '" . $server . "' or tx_mod= '1'";
-		}
-		
-
-		$key_a=0;
-
-		//var_dump($sql);
-
-		//parcour du résultat et préparation du wazzup pour le client
-		while($row = $sql->fetch())
-		{
-			$key_a++;
-			if ($row["port"]!=0)
-			{
-				//suppression des caractéres interdits dans le xml
-				$data[$key_a]["name"] = str_replace("[adm]", "_ADM_",str_replace("[ADM]", "_ADM_", $row['pilotname']));
-				//cryptage des ip
-				$data[$key_a]["ip"] = encrypt( $row["ip"] , $New_crypt,$FFS2_PLAY);
-				//info de l'IP local
-				$data[$key_a]["local_ip"] = $row["local_ip"];
-				$data[$key_a]["port"] = $row["port"];
-				$data[$key_a]["server"] = $row["server"];
-				$data[$key_a]["lastupdate"] = $row["lastupdate"];
-				$data[$key_a]['position']="icao";
-
-					/*$req_1= "SELECT `lng`,`lat` FROM `".PF_MARK_5_ENR."acarsdata` WHERE `pilot_id`='".$row['pilot_id']."'";
-					$acar_map = $this->db->query($req_1);
-
-					$req = "SELECT `icao`,`lng`,`lat`,`name`,`country`,( 3959 * acos ( cos ( radians('".$acar_map->lat."') ) * cos( radians( lat ) ) * cos( radians( lng ) - radians('".$acar_map->lng."') ) + sin ( radians('".$acar_map->lat."') ) * sin( radians( lat ) ) ) ) AS distance FROM `".PF_MARK_5_ENR."mega_airports` HAVING distance < 60 ORDER BY distance LIMIT 0 , 1";
-					$airport = $this->db->query($req);
-
-					if ($airport != FALSE) {
-						$data[$key]['position']= "Prés de " . $airport->name . " " . $airport->icao . ", distance: " . round($airport->distance, 1) . "nm";
-					} else {
-						$data[$key]['position']= "Aucune installation dans ses 60 nm";
-					}*/
-					
-				}
-			}
-			return $data;
-		}
-
-	/**
-	* Fonction de Création du slot d'un joueur
-	*
-	* @param Int $piloteid, numéro du pilote propriétaire de ce slot
-	* @param String $username, nom du pilote
-	* @param Object $xml, objet contenant les infos comme le port, l'ip local...
-	* @param Int $server, numéro du server sur lequelle la connexion est demandé
-	* @param String $pu_key, clé de cryptage fournis par le client qui sera utilisé pour les communications sensibles
-	* @param Int $tx_mod, mod de transmition, par encore implémenté
-	* @param Int $attached, numéro de reservation auquel est rattache ce slot (utilisé si module carrrière présent)
-	* @return Int, retroune 1 ou 0 si la création du slot est faites
-	*/
-	public function create_slot($piloteid = NULL,$username = NULL, $xml = NULL,$server=0,$pu_key=null,$tx_mod=null,$attached=0)
-	{
-		if ($piloteid != NULL and $xml != NULL) {
-			self::setPilot_id($piloteid);
-			self::setIp($_SERVER["REMOTE_ADDR"]);
-			self::setLocal_ip($xml->verify->local_ip);
-			self::setPilotname($username);
-			self::setPort(intval($xml->verify->port));
-			self::setPu_key($pu_key);
-			self::setKey_f ( $this->pilot_id . "-0000-" . time ());
-			self::setAttached($attached);
-			self::setServer($server);
-			self::setTx_mod($tx_mod);
-			self::setLastupdate();
-			//$update['lastupdate'] = $this->lastupdate;
-			
-
-			$data = array(
-				'pilot_id'  => strval ($this->pilot_id),
-				'pilotname' => strval ($this->pilotname),
-				'ip'        => strval ($this->ip),
-				'local_ip'  => strval ($this->local_ip),
-				'port'      => strval ($this->port),
-				'pu_key'      => strval ($this->pu_key),
-				'key_f'      => strval ($this->key_f),
-				'attached'      => strval ($this->attached),
-				'server'      => strval ($this->server),
-				'tx_mod'     => strval ($this->tx_mod),
-				'lastupdate'     => strval ($this->lastupdate),
-			);
-
-			$data_s=serialize ($data);
-			//création de la fiche du joeur s'étant connecté
-			if (file_put_contents('./nodb/Session_mp/'.$this->pilotname.'.ser',$data_s)!=false)
-			{
-				return $data;
-			}
-
-
-			//$sql = e107::getDb();
-			//return $sql->insert('tks_mp', $data);
-		}
-	}
-
-	/**
-	* Fonction de mise à jour du slot d'un joueur
-	*
-	* @param Array $data, tableau des données à actualisé
-	* @param String $new_key, nouvelle clé de cryptage à utilisé (dans le cas du recyclage du slot)
-	* @return Int, retroune 1 ou 0 si la création du slot est faites
-	*/
-	public function update_my_slot()
-	{
-		self::setLastupdate(date("Y-m-d H:i:s"));
-
-		$data = array(
-			'pilot_id'  => strval ($this->pilot_id),
-			'pilotname' => strval ($this->pilotname),
-			'ip'        => strval ($this->ip),
-			'local_ip'  => strval ($this->local_ip),
-			'port'      => strval ($this->port),
-			'pu_key'      => strval ($this->pu_key),
-			'key_f'      => strval ($this->key_f),
-			'attached'      => strval ($this->attached),
-			'server'      => strval ($this->server),
-			'tx_mod'     => strval ($this->tx_mod),
-			'lastupdate'     => strval ($this->lastupdate),
-		);
-
-		$datas=serialize ($data);
-
-		//mise à jour de la fiche du joueur s'étant connecté
-		if (file_put_contents('./nodb/Session_mp/'.$this->pilotname.'.ser',$datas)!=false)
-		{
-			return $datas;
-		}
+<?php
+if (!defined ('PROTECTIONINCLUDE')) {
+	die('Accès Interdit');
 }
 
+/**
+ * Slot de connexion d'un joueur au serveur multijoueurs FFS2play
+ *
+ * Chaque slot est stocké dans un fichier JSON du répertoire SESSION_DIR, nommé d'après le pseudo du pilote.
+ * Le pseudo est validé avant d'être utilisé comme nom de fichier (pas de traversée de répertoire possible).
+ */
+class Session_mp
+{
+	// délai sans mise à jour au delà duquel un joueur n'est plus listé (secondes)
+	const ACTIVE_DELAY = 40;
+	// délai au delà duquel un slot est supprimé (secondes)
+	const PURGE_DELAY = 300;
+
+	protected $pilot_id;//l'identifiant du pilote
+	protected $pilotname;//nom du pilote
+	protected $ip;//l'IP distante du pilote
+	protected $local_ip;//les IP locales du pilote (StringArray protobuf en base64, transmis tel quel aux autres joueurs)
+	protected $port;//port de communication P2P
+	protected $pu_key;//clé AES du client en base64, utilisée pour crypter les IP envoyées à ce client
+	protected $key_f;//clé de rappel
+	protected $attached;//objet de carrière auquel est rattaché cette clé de rappel
+	protected $server;//serveur auquel le joueur est connecté, 0=serveur public
+	protected $tx_mod;//méthode de transmission, 0=null, 1=normal...
+	protected $lastupdate;//timestamp unix de la dernière mise à jour
+	protected $err_obj = NULL;
+
+	//attributs accessibles en lecture
+	protected $attr_reader = array ('pilot_id', 'pilotname', 'ip', 'local_ip', 'port', 'pu_key', 'key_f', 'attached', 'server', 'tx_mod', 'lastupdate', 'err_obj');
+
 	/**
-	* remplissage de l'attribut Pilot_id, si celui-ci n'est pas renseigné ou de façon incorrecte, une erreur sera émise
-	* 
-	* @param Int $data: numéro identifiant du pilote
-	*/
-	private function setPilot_id($data)
+	 * gestionnaire des accés en lecture
+	 *
+	 * @param String $attribute: attribut à lire
+	 * @return la valeur de l'attribut, NULL si la lecture est refusée
+	 */
+	public function __get ($attribute)
 	{
-		if ($data == NULL or !is_numeric($data)) {$this->add_error("l'identifiant du pilote n'est pas fourni");}
-		else {$this->pilot_id = $data;}
+		if (in_array ($attribute, $this->attr_reader)) {
+			return $this->$attribute;
+		}
+		$this->add_error (get_class ($this) . " Signal: Accés à la lecture refusé pour la variable '$" . $attribute . "'");
+		return NULL;
 	}
 
-
 	/**
-	* remplissage de l'attribut IP du pilote, si celui-ci n'est pas renseigné ou de façon incorrecte, une erreur sera émise
-	* 
-	* @param String $data: IP externe
-	*/
-	private function setIp($data)
+	 * Chargement du slot d'un pilote
+	 *
+	 * @param String $pilotname, pseudo du pilote
+	 */
+	public function __construct ($pilotname = NULL)
 	{
-		if ($data == NULL) {
-			$this->add_error("l'IP¨du pilote n'est pas fourni");
-		} else {
-			$this->ip = $data;
+		if ($pilotname !== NULL and self::is_valid_pilotname ($pilotname)) {
+			$data = self::read_file (self::slot_file ($pilotname));
+			if ($data !== NULL) {
+				$this->hydrate ($data);
+			}
 		}
 	}
 
 	/**
-	* remplissage de l'attribut IP local du pilote, si celui-ci n'est pas renseigné ou de façon incorrecte, une erreur sera émise
-	* 
-	* @param String $data: IP local
-	*/
-	private function setLocal_ip($data)
+	 * Vérifie qu'un pseudo est utilisable : mêmes caractères que ceux autorisés par le client
+	 * (gui/dialogprofils.cpp), et nom d'élément XML valide car il sert de balise dans le whazzup
+	 *
+	 * @param String $pilotname
+	 * @return Bool
+	 */
+	public static function is_valid_pilotname ($pilotname)
 	{
-		if ($data == NULL or $data == '') {$this->local_ip = 'na';}
-		else {$this->local_ip = $data;}
-	}
-
-	private function setPilotname($data)
-	{
-		if ($data == NULL) {$this->add_error("le nom du pilote n'est pas fourni");}
-		else {$this->pilotname = $data;}
+		return preg_match ('/^[A-Za-z_éèà][A-Za-z0-9_\-\.éèà]{0,31}$/u', strval ($pilotname)) === 1;
 	}
 
 	/**
-	* remplissage de l'attribut Port de communication, si celui-ci n'est pas renseigné ou de façon incorrecte, une valeur par défaut sera mise
-	* 
-	* @param Int $data: port de communication
-	*/
-	private function setPort($data)
+	 * Indique si le slot existe et a été mis à jour récemment
+	 *
+	 * @return Bool
+	 */
+	public function is_active ()
 	{
-		if ($data == NULL or !is_numeric($data)) {$this->port='11111';}
-		else {$this->port = $data;}
+		return $this->pilotname !== NULL and $this->lastupdate >= time () - self::ACTIVE_DELAY;
 	}
 
 	/**
-	* remplissage de l'attribut clé de décryptage, si celui-ci n'est pas renseigné ou de façon incorrecte, une valeur par défaut sera mise
-	* 
-	* @param Int $data: port de communication
-	*/
-	private function setPu_key($data)
+	 * Recherche du slot correspondant à une clé de rappel
+	 *
+	 * @param String $key_f, clé de rappel envoyée par le client
+	 * @return Session_mp ou NULL si aucun slot ne correspond
+	 */
+	public static function find_by_key ($key_f)
 	{
-		if ($data == NULL) {$this->pu_key="not defined";}
-		else {$this->pu_key = $data;}
+		$key_f = strval ($key_f);
+		if ($key_f === '') {
+			return NULL;
+		}
+		foreach (self::all_slots () as $data) {
+			if (isset ($data['key_f']) and hash_equals ($data['key_f'], $key_f)) {
+				$slot = new Session_mp();
+				$slot->hydrate ($data);
+				return $slot;
+			}
+		}
+		return NULL;
 	}
 
 	/**
-	* remplissage de l'attribut clé de décryptage, si celui-ci n'est pas renseigné ou de façon incorrecte, une erreur sera émise
-	* 
-	* @param Int $data: port de communication
-	*/
-	private function setKey_f($data)
+	 * Liste des joueurs actifs sur un serveur, à l'exception de $exclude
+	 *
+	 * @param Int $server, numéro du serveur à lister
+	 * @param String $exclude, pseudo du joueur demandeur
+	 * @param String $crypt_key, clé AES (binaire) utilisée pour crypter les IP
+	 * @return Array, tableau des joueurs prêt pour pre_xml()
+	 */
+	public static function get_whazzup ($server, $exclude, $crypt_key)
 	{
-		if ($data == NULL) {$this->add_error("la clé d'identification n'est pas définis correctement");}
-		else {$this->key_f = $data;}
+		$whazzup = array ();
+		foreach (self::all_slots () as $data) {
+			if (!isset ($data['pilotname'], $data['lastupdate']) or $data['pilotname'] === $exclude) {
+				continue;
+			}
+			if ($data['lastupdate'] < time () - self::ACTIVE_DELAY or intval ($data['port']) === 0) {
+				continue;
+			}
+			if (strval ($data['server']) !== strval ($server)) {
+				continue;
+			}
+			$whazzup[] = array (
+				'name'       => $data['pilotname'],
+				'ip'         => encrypt ($data['ip'], $crypt_key, TRUE),
+				'local_ip'   => $data['local_ip'],
+				'port'       => $data['port'],
+				'server'     => $data['server'],
+				'lastupdate' => date ("Y-m-d H:i:s", $data['lastupdate']),
+			);
+		}
+		return $whazzup;
 	}
 
 	/**
-	* remplissage de l'attribut clé de décryptage, si celui-ci n'est pas renseigné ou de façon incorrecte, une erreur sera émise
-	* 
-	* @param Int $data: port de communication
-	*/
-	private function setAttached($data)
+	 * Suppression des slots qui n'ont pas été mis à jour depuis PURGE_DELAY secondes
+	 */
+	public static function purge ()
 	{
-		if ($data == NULL) {$this->attached="0";}
-		else {$this->attached = $data;}
-	}
-
-
-	/**
-	* remplissage de l'attribut server, si celui-ci n'est pas renseigné ou de façon incorrecte, une valeur par défaut sera mise
-	* 
-	* @param Int $data: serveur multijoueurs
-	*/
-	private function setServer($data)
-	{
-		if ($data == NULL) {$this->server="0";}
-		else {$this->server = $data;}
+		foreach ((glob (SESSION_DIR . '/*.json') ?: array ()) as $file) {
+			if (filemtime ($file) < time () - self::PURGE_DELAY) {
+				@unlink ($file);
+			}
+		}
 	}
 
 	/**
-	* remplissage de l'attribut tx_mod, si celui-ci n'est pas renseigné ou de façon incorrecte, une valeur par défaut sera mise
-	* 
-	* @param Int $data: méthode de transmition, 0=null, 1=normal
-	*/
-	private function setTx_mod($data)
+	 * Suppression du slot (déconnexion du joueur)
+	 *
+	 * @return Bool, TRUE si le slot a été supprimé
+	 */
+	public function remove ()
 	{
-		if ($data == NULL or !is_numeric($data)) {$this->tx_mod="0";}
-		else {$this->tx_mod = $data;}
+		if (!self::is_valid_pilotname ($this->pilotname)) {
+			return FALSE;
+		}
+		return @unlink (self::slot_file ($this->pilotname));
 	}
 
-	private function setLastupdate()
+	/**
+	 * Création du slot d'un joueur
+	 *
+	 * @param Int $piloteid, numéro du pilote propriétaire de ce slot
+	 * @param String $username, nom du pilote (validé par is_valid_pilotname)
+	 * @param Object $xml, requête du client contenant le port et les IP locales
+	 * @param Int $server, numéro du serveur sur lequel la connexion est demandée
+	 * @param String $pu_key, clé AES du client en base64
+	 * @param Int $tx_mod, mode de transmission, pas encore implémenté
+	 * @param Int $attached, numéro de réservation auquel est rattaché ce slot (module carrière)
+	 * @return Bool, TRUE si le slot est enregistré
+	 */
+	public function create_slot ($piloteid, $username, $xml, $server = 0, $pu_key = NULL, $tx_mod = 0, $attached = 0)
 	{
-		$this->lastupdate = date("Y-m-d H:i:s");
+		if (!self::is_valid_pilotname ($username) or $xml === NULL) {
+			$this->add_error ("le nom du pilote n'est pas valide");
+			return FALSE;
+		}
+		$port = intval ($xml->verify->port);
+		$local_ip = strval ($xml->verify->local_ip);
+		$this->pilot_id = intval ($piloteid);
+		$this->pilotname = $username;
+		$this->ip = $_SERVER["REMOTE_ADDR"];
+		$this->local_ip = preg_match ('/^[A-Za-z0-9+\/=]*$/', $local_ip) === 1 && $local_ip !== '' ? $local_ip : 'na';
+		$this->port = ($port > 0 and $port < 65536) ? $port : 11111;
+		$this->pu_key = $pu_key === NULL ? '' : strval ($pu_key);
+		$this->key_f = bin2hex (random_bytes (16));
+		$this->attached = intval ($attached);
+		$this->server = intval ($server);
+		$this->tx_mod = intval ($tx_mod);
+		return $this->update_my_slot ();
+	}
+
+	/**
+	 * Mise à jour du slot d'un joueur (heure de dernière activité)
+	 *
+	 * @return Bool, TRUE si le slot est enregistré
+	 */
+	public function update_my_slot ()
+	{
+		if (!self::is_valid_pilotname ($this->pilotname)) {
+			return FALSE;
+		}
+		$this->lastupdate = time ();
+		$data = array (
+			'pilot_id'   => $this->pilot_id,
+			'pilotname'  => $this->pilotname,
+			'ip'         => $this->ip,
+			'local_ip'   => $this->local_ip,
+			'port'       => $this->port,
+			'pu_key'     => $this->pu_key,
+			'key_f'      => $this->key_f,
+			'attached'   => $this->attached,
+			'server'     => $this->server,
+			'tx_mod'     => $this->tx_mod,
+			'lastupdate' => $this->lastupdate,
+		);
+		return file_put_contents (self::slot_file ($this->pilotname), json_encode ($data), LOCK_EX) !== FALSE;
+	}
+
+	/**
+	 * Fonction d'hydratation permettant le remplissage de l'objet
+	 *
+	 * @param Array , tableau des données à mettre en attributs
+	 */
+	protected function hydrate ($data)
+	{
+		foreach ($data as $key => $value) {
+			if (property_exists ($this, $key) and in_array ($key, $this->attr_reader)) {
+				$this->$key = $value;
+			}
+		}
 	}
 
 	/**
 	 * gestionnaire des alertes
 	 *
-	 * @param String $data: message d'alerte 
-	 * @return aucun, toutes les alertes envoyés sont stocké dans l'objet err_obj et sont à disposition du programmeur
+	 * @param String $data: message d'alerte, stocké dans err_obj à disposition du programmeur
 	 */
 	protected function add_error ($data)
 	{
-		//echo '<br>alert: '.$data.'<br>';
-		if ($data != NULL)
-		{
-			if (is_array ($this->err_obj)){$this->err_obj[] = $data;}
-			else
-			{
+		if ($data != NULL) {
+			if (!is_array ($this->err_obj)) {
 				$this->err_obj = array ();
-				$this->err_obj[] = $data;
 			}
+			$this->err_obj[] = $data;
 		}
 	}
 
+	private static function slot_file ($pilotname)
+	{
+		return SESSION_DIR . '/' . $pilotname . '.json';
+	}
+
+	private static function read_file ($file)
+	{
+		if (!is_file ($file)) {
+			return NULL;
+		}
+		$data = json_decode (file_get_contents ($file), TRUE);
+		return is_array ($data) ? $data : NULL;
+	}
+
+	private static function all_slots ()
+	{
+		$slots = array ();
+		foreach ((glob (SESSION_DIR . '/*.json') ?: array ()) as $file) {
+			$data = self::read_file ($file);
+			if ($data !== NULL) {
+				$slots[] = $data;
+			}
+		}
+		return $slots;
+	}
 }
+?>

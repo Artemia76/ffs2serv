@@ -1,0 +1,10 @@
+# Secrets : généré par tools/generate_config.php
+config/config_gen.php
+
+# Slots de connexion des joueurs
+nodb/
+
+# Divers
+.idea/
+.vscode/
+*.log

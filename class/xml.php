@@ -1,4 +1,7 @@
-<?php 	
+<?php
+if (!defined ('PROTECTIONINCLUDE')) {
+	die('Accès Interdit');
+}
 
 class XML2Array {
 
@@ -272,10 +275,16 @@ class Array2XML {
 function xml_extract($text)
 {
 	//$text = file_get_contents('php://input');
-	$encoding = mb_detect_encoding($text);
-	$rec_xml = trim(iconv($encoding, "UTF-8", $text));
-
-	return simplexml_load_string($rec_xml);
+	if (!is_string ($text) or trim ($text) === '') {
+		return false;
+	}
+	$encoding = mb_detect_encoding ($text, array ('UTF-8', 'ISO-8859-1'), TRUE);
+	if ($encoding !== false and $encoding !== 'UTF-8') {
+		$text = mb_convert_encoding ($text, 'UTF-8', $encoding);
+	}
+	//les erreurs de syntaxe ne doivent pas polluer la réponse XML
+	libxml_use_internal_errors (TRUE);
+	return simplexml_load_string (trim ($text), 'SimpleXMLElement', LIBXML_NONET);
 }
 
 function pre_xml($data)
@@ -332,9 +341,11 @@ function pre_xml($data)
 		}
 		elseif ($name == 'whazzup')
 		{
-			//$info_xml->addChild('whazzup');
-			if ($value != NULL and $value != '')
+			//une liste vide produit <whazzup/> : le client retire alors les joueurs partis
+			$pre_xml['whazzup'] = '';
+			if (is_array ($value) and count ($value) > 0)
 			{
+				$pre_xml['whazzup'] = array ();
 				foreach ($value as $key2 => $value2)
 				{
 					$pre_xml['whazzup'][$value2["name"]]=array(
