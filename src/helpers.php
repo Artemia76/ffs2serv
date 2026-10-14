@@ -21,7 +21,8 @@ function url(string $path = '/', array $query = []): string
 /** URL d'un fichier statique de public/assets */
 function asset(string $path): string
 {
-    $file = FFS2_ROOT . '/public/assets/' . ltrim($path, '/');
+    $public = defined('FFS2_PUBLIC') ? FFS2_PUBLIC : FFS2_ROOT . '/public';
+    $file = $public . '/assets/' . ltrim($path, '/');
     $version = is_file($file) ? '?v=' . substr(md5((string) filemtime($file)), 0, 8) : '';
     return App::get()->router()->basePath() . '/assets/' . ltrim($path, '/') . $version;
 }

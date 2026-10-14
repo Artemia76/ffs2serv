@@ -7,6 +7,10 @@ namespace Ffs2\Domain;
  * Paire RSA du serveur : le certificat est envoyé aux clients (« hello »), qui l'utilisent pour
  * chiffrer leur clé AES. Les clients le récupèrent à chaque connexion : régénérer la paire
  * ne nécessite aucune mise à jour côté client.
+ *
+ * Les clés sont écrites dans des fichiers PHP (server.key.php, server.crt.php) : même si le dossier
+ * est accessible depuis le web (hébergement sans dossier privé, nginx sans .htaccess), une requête
+ * les exécute sans rien afficher. Les anciens fichiers server.key / server.crt restent lus.
  */
 final class KeyManager
 {
@@ -16,7 +20,7 @@ final class KeyManager
 
     public function exists(): bool
     {
-        return is_file($this->dir . '/server.key') && is_file($this->dir . '/server.crt');
+        return $this->file('server.key') !== null && $this->file('server.crt') !== null;
     }
 
     public function certificate(): string
@@ -54,16 +58,43 @@ final class KeyManager
         if (!is_dir($this->dir) && !mkdir($this->dir, 0750, true) && !is_dir($this->dir)) {
             throw new \RuntimeException('Impossible de créer ' . $this->dir);
         }
-        file_put_contents($this->dir . '/server.key', $keyPem, LOCK_EX);
-        file_put_contents($this->dir . '/server.crt', $certPem, LOCK_EX);
-        @chmod($this->dir . '/server.key', 0640);
+        $this->write('server.key', $keyPem);
+        $this->write('server.crt', $certPem);
+        // anciens fichiers en clair
+        @unlink($this->dir . '/server.key');
+        @unlink($this->dir . '/server.crt');
     }
 
-    private function read(string $file): string
+    private function write(string $name, string $pem): void
     {
-        $content = @file_get_contents($this->dir . '/' . $file);
-        if ($content === false) {
-            throw new \RuntimeException("Clé du serveur absente : {$this->dir}/$file");
+        $file = $this->dir . "/$name.php";
+        $content = "<?php\n// Clé du serveur FFS2play générée automatiquement : ne pas modifier, ne pas diffuser.\nreturn "
+            . var_export($pem, true) . ";\n";
+        if (file_put_contents($file, $content, LOCK_EX) === false) {
+            throw new \RuntimeException("Impossible d'écrire $file");
+        }
+        @chmod($file, 0640);
+        if (function_exists('opcache_invalidate')) {
+            @opcache_invalidate($file, true);
+        }
+    }
+
+    private function file(string $name): ?string
+    {
+        foreach (["$name.php", $name] as $candidate) {
+            if (is_file($this->dir . '/' . $candidate)) {
+                return $this->dir . '/' . $candidate;
+            }
+        }
+        return null;
+    }
+
+    private function read(string $name): string
+    {
+        $file = $this->file($name);
+        $content = $file === null ? false : (str_ends_with($file, '.php') ? require $file : @file_get_contents($file));
+        if (!is_string($content) || $content === '') {
+            throw new \RuntimeException("Clé du serveur absente : {$this->dir}/$name.php");
         }
         return $content;
     }

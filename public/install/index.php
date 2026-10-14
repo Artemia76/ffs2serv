@@ -4,7 +4,9 @@
  */
 declare(strict_types=1);
 
-require dirname(__DIR__, 2) . '/src/bootstrap.php';
+// public/ comme racine web, ou installation « à plat » (contenu de public/ à côté de src/)
+define('FFS2_PUBLIC', dirname(__DIR__));
+require (is_dir(dirname(__DIR__) . '/src') ? dirname(__DIR__) : dirname(__DIR__, 2)) . '/src/bootstrap.php';
 
 use Ffs2\Core\App;
 use Ffs2\Core\Config;

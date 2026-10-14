@@ -4,7 +4,9 @@
  */
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/src/bootstrap.php';
+// le portail peut être installé avec public/ comme racine web, ou « à plat » (contenu de public/ à côté de src/)
+define('FFS2_PUBLIC', __DIR__);
+require (is_dir(__DIR__ . '/src') ? __DIR__ : dirname(__DIR__)) . '/src/bootstrap.php';
 
 use Ffs2\Client\ClientController;
 use Ffs2\Core\App;

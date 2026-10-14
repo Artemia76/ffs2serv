@@ -52,7 +52,15 @@ location / { try_files $uri $uri/ /index.php?$query_string; }
 location ~ \.php$ { include fastcgi_params; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass unix:/run/php/php8.3-fpm.sock; }
 ```
 
-Sans réécriture d'URL possible, passez `'pretty_urls' => false` dans `config/config.php` (liens en `index.php/page`).
+Sans réécriture d'URL possible, passez `'pretty_urls' => false` dans `config/config.php` (liens en `index.php/page`) ;
+l'installeur le détecte automatiquement.
+
+### Hébergement sans dossier privé (YunoHost « My Webapp », nginx sans `.htaccess`)
+
+Copiez **le contenu de `public/`** à la racine web, et à côté les dossiers `src/`, `templates/`, `database/`
+et `config/` (disposition « à plat »). Le portail le détecte tout seul. Dans ce cas, tout ce qui est secret est
+stocké dans des fichiers PHP (`config/config.php`, `config/keys/*.php`) : une requête web les exécute sans rien
+afficher. Ne copiez pas `tests/`, `docker/` ni `bin/` sur un tel hébergement.
 
 ### Connecter ffs2play
 

@@ -39,3 +39,10 @@ check_equal($aesKey, Crypto::unseal(Crypto::seal($aesKey, $appKey), $appKey), 'c
 $sealed = base64_decode(Crypto::seal($aesKey, $appKey));
 $sealed[30] = chr(ord($sealed[30]) ^ 1);
 check_equal(null, Crypto::unseal(base64_encode($sealed), $appKey), 'clé stockée altérée détectée');
+
+// clés du serveur dans des fichiers PHP : rien n'est affiché si le dossier est servi par le web
+$keyFile = $app->config()->keysDir() . '/server.key.php';
+check(is_file($keyFile) && !is_file($app->config()->keysDir() . '/server.key'), 'clé privée stockée dans un fichier PHP');
+ob_start();
+$included = include $keyFile;
+check(ob_get_clean() === '' && str_contains((string) $included, 'PRIVATE KEY'), "fichier de clé : aucune sortie à l'exécution");
