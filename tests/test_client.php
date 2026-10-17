@@ -130,3 +130,41 @@ $app->db()->execute('DELETE FROM {login_attempts}');
 
 $garbage = (new Browser($base))->raw('/action.php', 'pas du xml', 'text/xml');
 check(@simplexml_load_string($garbage->body) !== false, 'requête invalide : réponse XML valide');
+
+// IPv6 (fiche 0003) : requêtes passées directement au contrôleur avec l'adresse observée
+function direct_request(Ffs2\Core\App $app, string $switch, string $key, string $body, string $ip): SimpleXMLElement
+{
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n<FFS2Play><version>ffs2play_2_4_0</version>"
+        . '<switch><data>' . $switch . '</data><key>' . htmlspecialchars($key) . "</key></switch>$body</FFS2Play>\n";
+    return simplexml_load_string((new Ffs2\Client\ClientController($app))->handle($xml, $ip)->toXml());
+}
+
+$hello6 = direct_request($app, 'hello', '', '<hello><pilotID>Bravo_2</pilotID></hello>', '2001:db8::2');
+check(str_contains((string) $hello6->certificat, 'BEGIN CERTIFICATE') && (string) $hello6->your_ip === '2001:db8::2', 'IPv6 : hello accepté');
+$aes6 = random_bytes(32);
+openssl_public_encrypt($aes6, $crypted6, openssl_pkey_get_public((string) $hello6->certificat), OPENSSL_PKCS1_PADDING);
+$login6 = direct_request($app, 'verify', '', '<verify><AES>' . base64_encode($crypted6) . '</AES><pilotID>Bravo_2</pilotID><password>'
+    . Crypto::encrypt($pilots['Bravo_2'], $aes6) . '</password><port>54857</port><local_ip>na</local_ip></verify>', '2001:db8::2');
+check_equal('1', (string) $login6->loginStatus, 'IPv6 : verify accepté');
+$key6 = (string) $login6->key;
+$bravo6 = whazzup($login6)['Bravo_2'] ?? null;
+check($bravo6 !== null && (string) $bravo6['ip'] === '' && Crypto::decrypt((string) $bravo6['ip6'], $aes6) === '2001:db8::2',
+    'IPv6 : Whazzup avec ip6 seule');
+
+$addr4 = direct_request($app, 'addr', $key6, '', '::ffff:198.51.100.7');
+check_equal('198.51.100.7', (string) $addr4->your_ip, 'addr : adresse IPv4-mapped normalisée');
+$both = whazzup(direct_request($app, 'liveupdate', $key6, '', '2001:db8::2'))['Bravo_2'];
+check(Crypto::decrypt((string) $both['ip'], $aes6) === '198.51.100.7' && Crypto::decrypt((string) $both['ip6'], $aes6) === '2001:db8::2',
+    'addr : IPv4 ajoutée au slot IPv6, les deux dans le Whazzup');
+
+direct_request($app, 'addr', str_repeat('0', 32), '', '203.0.113.9');
+$slot6 = $app->db()->fetch("SELECT s.* FROM {slots} s JOIN {users} u ON u.id = s.user_id WHERE u.callsign = 'Bravo_2'");
+check_equal('198.51.100.7', $slot6['ip'], 'addr : clé inconnue sans effet');
+
+$app->db()->execute('UPDATE {slots} SET ip6_seen_at = :old WHERE user_id = :user', ['old' => now_utc(-200), 'user' => $slot6['user_id']]);
+$stale = whazzup(direct_request($app, 'liveupdate', $key6, '', '198.51.100.7'))['Bravo_2'];
+check(!isset($stale['ip6']) && Crypto::decrypt((string) $stale['ip'], $aes6) === '198.51.100.7', 'Whazzup : IPv6 trop ancienne non donnée');
+$app->db()->execute('UPDATE {slots} SET ip_seen_at = :old WHERE user_id = :user', ['old' => now_utc(-200), 'user' => $slot6['user_id']]);
+$repository = new Ffs2\Domain\SlotRepository($app->db(), $app->appKey());
+check(!in_array('Bravo_2', array_column($repository->whazzup($slot6, $aes6), 'name'), true), 'Whazzup : pilote sans adresse récente non listé');
+direct_request($app, 'logout', $key6, '', '198.51.100.7');

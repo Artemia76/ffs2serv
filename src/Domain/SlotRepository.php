@@ -15,6 +15,8 @@ final class SlotRepository
     public const ACTIVE_DELAY = 40;
     /** Délai au delà duquel un slot abandonné est supprimé */
     public const PURGE_DELAY = 300;
+    /** Délai au delà duquel une adresse (IPv4 ou IPv6) n'est plus donnée aux pairs (le client envoie addr toutes les 30 s) */
+    public const ADDRESS_DELAY = 120;
 
     public function __construct(private Database $db, private string $appKey)
     {
@@ -40,7 +42,10 @@ final class SlotRepository
                 'user_id' => $userId,
                 'server_id' => $serverId,
                 'global_mode' => (int) $user['global_mode'],
-                'ip' => $ip,
+                'ip' => null,
+                'ip_seen_at' => null,
+                'ip6' => null,
+                'ip6_seen_at' => null,
                 'local_ip' => $localIp,
                 'port' => $port,
                 'aes_key' => Crypto::seal($aesKey, $this->appKey),
@@ -51,6 +56,7 @@ final class SlotRepository
                 'connected_at' => now_utc(),
                 'last_seen_at' => now_utc(),
             ];
+            $values = array_merge($values, self::addressColumns($ip));
             $columns = implode(', ', array_map(fn ($c) => "`$c`", array_keys($values)));
             $placeholders = implode(', ', array_map(fn ($c) => ":$c", array_keys($values)));
             $updates = implode(', ', array_map(fn ($c) => "`$c` = VALUES(`$c`)", array_keys($values)));
@@ -90,7 +96,7 @@ final class SlotRepository
     /** Le client a donné des nouvelles */
     public function touch(int $userId, string $ip, ?string $sim = null): void
     {
-        $values = ['last_seen_at' => now_utc(), 'ip' => $ip];
+        $values = array_merge(['last_seen_at' => now_utc()], self::addressColumns($ip));
         if ($sim !== null && $sim !== '') {
             $values['sim'] = mb_substr($sim, 0, 32);
         }
@@ -99,6 +105,21 @@ final class SlotRepository
             $this->db->execute('UPDATE {connections} c JOIN {slots} s ON s.connection_id = c.id SET c.sim = :sim WHERE s.user_id = :user',
                 ['sim' => mb_substr($sim, 0, 32), 'user' => $userId]);
         }
+    }
+
+    /** Adresse observée par une requête addr (IPv4 ou IPv6 forcée par le client) : n'entretient pas le slot */
+    public function touchAddress(int $userId, string $ip): void
+    {
+        $this->db->update('slots', self::addressColumns($ip), 'user_id = :user', ['user' => $userId]);
+    }
+
+    /** Colonnes à mettre à jour pour une adresse observée, selon sa famille */
+    private static function addressColumns(string $ip): array
+    {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+            return ['ip6' => $ip, 'ip6_seen_at' => now_utc()];
+        }
+        return ['ip' => $ip, 'ip_seen_at' => now_utc()];
     }
 
     /** Choix de serveur fait sur le site : appliqué au slot actif, effectif au liveupdate suivant */
@@ -121,25 +142,31 @@ final class SlotRepository
      */
     public function whazzup(array $slot, string $cryptKey): array
     {
-        $params = ['server' => $slot['server_id'], 'active' => now_utc(-self::ACTIVE_DELAY)];
+        $address = now_utc(-self::ADDRESS_DELAY);
+        $params = ['server' => $slot['server_id'], 'active' => now_utc(-self::ACTIVE_DELAY),
+            'address' => $address, 'address6' => $address];
         $globalFilter = '';
         if ((int) $slot['global_mode']) {
             $globalFilter = ' OR s.global_mode = 1';
         }
         $rows = $this->db->fetchAll(
-            "SELECT u.callsign, s.ip, s.local_ip, s.port, s.last_seen_at, leader.callsign AS team
+            "SELECT u.callsign, s.ip, s.ip_seen_at, s.ip6, s.ip6_seen_at, s.local_ip, s.port, s.last_seen_at, leader.callsign AS team
              FROM {slots} s
              JOIN {users} u ON u.id = s.user_id
              LEFT JOIN {teams} t ON t.id = u.team_id
              LEFT JOIN {users} leader ON leader.id = t.leader_id
              WHERE s.last_seen_at >= :active AND s.port > 0 AND u.status = 'active'
+               AND (s.ip_seen_at >= :address OR s.ip6_seen_at >= :address6)
                AND (s.server_id = :server$globalFilter)
              ORDER BY u.callsign",
             $params
         );
+        $fresh = fn (?string $ip, ?string $seen) => $ip !== null && $ip !== '' && $seen !== null && $seen >= $address
+            ? (string) Crypto::encrypt($ip, $cryptKey) : '';
         return array_map(fn ($row) => [
             'name' => $row['callsign'],
-            'ip' => (string) Crypto::encrypt((string) $row['ip'], $cryptKey),
+            'ip' => $fresh($row['ip'], $row['ip_seen_at']),
+            'ip6' => $fresh($row['ip6'], $row['ip6_seen_at']),
             'local_ip' => $row['local_ip'],
             'port' => (int) $row['port'],
             'lastupdate' => $row['last_seen_at'],

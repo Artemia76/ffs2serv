@@ -69,6 +69,9 @@ final class XmlResponse
             foreach ($this->whazzup as $player) {
                 $xml->startElement($player['name']);
                 $xml->writeAttribute('ip', (string) $player['ip']);
+                if (!empty($player['ip6'])) {
+                    $xml->writeAttribute('ip6', (string) $player['ip6']);
+                }
                 $xml->writeAttribute('local_ip', (string) $player['local_ip']);
                 $xml->writeAttribute('port', (string) $player['port']);
                 $xml->writeAttribute('lastupdate', (string) $player['lastupdate']);
