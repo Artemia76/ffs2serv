@@ -15,7 +15,7 @@ le multijoueur pair à pair pour MSFS, Prepar3D, FSX, X-Plane et FlightGear.
 PHP natif sans dépendance (aucun Composer), MariaDB ou MySQL. Se déploie par simple copie sur un hébergement mutualisé.
 
 > La version minimale sans base de données ni interface web (mot de passe de session commun) reste disponible :
-> tag [`v1-standalone`](https://github.com/Artemia76/ffs2serv_standalone/tree/v1-standalone).
+> tag [`v1-standalone`](https://github.com/Artemia76/ffs2serv/tree/v1-standalone).
 
 ## Prérequis
 
