@@ -15,6 +15,7 @@ use Ffs2\Domain\SlotRepository;
  *   verify     → authentification avec le compte du site, ouverture du slot, liste des pilotes
  *   liveupdate → toutes les 30 s : maintien du slot, position, liste des pilotes
  *   atc        → toutes les 5 s : position (carte temps réel)
+ *   addr       → après verify puis toutes les 30 s, en IPv4 puis en IPv6 forcés : adresse observée de chaque famille
  *   logout     → fermeture du slot
  */
 final class ClientController
@@ -33,8 +34,10 @@ final class ClientController
         $response = new XmlResponse();
         Messages::setReplacement('site', $this->app->settings()->get('site_name'));
 
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-            $response->error(219);
+        // IPv4 et IPv6 acceptées : seules les adresses observées ici sont enregistrées (fiche 0003)
+        $ip = self::normalizeIp($ip);
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            $response->error(201);
             $response->set('loginStatus', 0);
             return $response;
         }
@@ -63,6 +66,7 @@ final class ClientController
             'verify' => $this->verify($xml, $ip, $version, $response),
             'liveupdate' => $this->liveUpdate($xml, $ip, $response),
             'atc' => $this->atc($xml, $ip),
+            'addr' => $this->addr($xml, $ip),
             'logout' => $this->logout($xml, $response),
             default => null,
         };
@@ -70,6 +74,15 @@ final class ClientController
             $response->set('hello', 'world');
         }
         return $response;
+    }
+
+    /** Un serveur web en double pile présente un client IPv4 sous la forme ::ffff:a.b.c.d */
+    public static function normalizeIp(string $ip): string
+    {
+        if (stripos($ip, '::ffff:') === 0 && filter_var(substr($ip, 7), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+            return substr($ip, 7);
+        }
+        return $ip;
     }
 
     /** Clients ffs2play 2.x et suivants (version envoyée : ffs2play_<major>_<minor>_<build>) */
@@ -178,6 +191,14 @@ final class ClientController
         $position = FlightTracker::parse($xml->atc, false);
         if ($position !== null) {
             $this->tracker->update((int) $slot['user_id'], (int) $slot['server_id'], (string) $slot['sim'], $position);
+        }
+    }
+
+    private function addr(\SimpleXMLElement $xml, string $ip): void
+    {
+        $slot = $this->slots->findByKey(trim((string) $xml->switch->key));
+        if ($slot !== null) {
+            $this->slots->touchAddress((int) $slot['user_id'], $ip);
         }
     }
 
