@@ -6,6 +6,7 @@ namespace Ffs2\Core;
 use Ffs2\Auth\Auth;
 use Ffs2\Auth\UserRepository;
 use Ffs2\Domain\KeyManager;
+use Ffs2\Domain\ReleaseCatalog;
 
 /**
  * Conteneur de l'application : services créés à la demande, partagés pour la requête.
@@ -102,6 +103,16 @@ final class App
     public function keys(): KeyManager
     {
         return $this->keys ??= new KeyManager($this->config->keysDir());
+    }
+
+    /** Releases GitHub des logiciels (mises à jour, page de téléchargement) */
+    public function releases(): ReleaseCatalog
+    {
+        return new ReleaseCatalog(
+            $this->config->storageDir() . '/cache',
+            (string) $this->config->get('github.token', ''),
+            (string) $this->config->get('github.api', 'https://api.github.com')
+        );
     }
 
     /** Clé applicative (32 octets) : chiffrement des clés AES des clients stockées en base */

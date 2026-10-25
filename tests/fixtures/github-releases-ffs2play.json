@@ -1,0 +1,305 @@
+[
+ {
+  "tag_name": "2.6.0",
+  "draft": true,
+  "prerelease": false,
+  "published_at": "2026-11-01T12:00:00Z",
+  "html_url": "https://github.com/Artemia76/ffs2play/releases/tag/2.6.0",
+  "body": "## FFS2Play 2.6.0\n\nNotes.",
+  "assets": [
+   {
+    "name": "ffs2play_2_6_0_Windows.exe",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_6_0_Windows.exe",
+    "size": 1000,
+    "digest": "sha256:69eddd2fa6ef24a569eddd2fa6ef24a569eddd2fa6ef24a569eddd2fa6ef24a5"
+   },
+   {
+    "name": "ffs2play_2_6_0_Darwin.dmg",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_6_0_Darwin.dmg",
+    "size": 1000,
+    "digest": "sha256:401c454dfe305b45401c454dfe305b45401c454dfe305b45401c454dfe305b45"
+   },
+   {
+    "name": "ffs2play-2.6.0-x86_64.AppImage",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.6.0-x86_64.AppImage",
+    "size": 1000,
+    "digest": "sha256:610589a037a54dfb610589a037a54dfb610589a037a54dfb610589a037a54dfb"
+   },
+   {
+    "name": "ffs2play_2.6.0-1+debian13_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.6.0-1+debian13_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:70432a79ff60389a70432a79ff60389a70432a79ff60389a70432a79ff60389a"
+   },
+   {
+    "name": "ffs2play_2.6.0-1+ubuntu25.04_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.6.0-1+ubuntu25.04_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:5c4ed3f27c9a388f5c4ed3f27c9a388f5c4ed3f27c9a388f5c4ed3f27c9a388f"
+   },
+   {
+    "name": "ffs2play_2.6.0-1+ubuntu25.10_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.6.0-1+ubuntu25.10_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:1b27cd2e060949d61b27cd2e060949d61b27cd2e060949d61b27cd2e060949d6"
+   },
+   {
+    "name": "ffs2play-2.6.0-1.fc43.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.6.0-1.fc43.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:68039d5b52d82dbd68039d5b52d82dbd68039d5b52d82dbd68039d5b52d82dbd"
+   },
+   {
+    "name": "ffs2play-2.6.0-1.el10.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.6.0-1.el10.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:00802b1a18b2e1ea00802b1a18b2e1ea00802b1a18b2e1ea00802b1a18b2e1ea"
+   },
+   {
+    "name": "ffs2play-2.6.0-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.6.0-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:6fff0801f734c19a6fff0801f734c19a6fff0801f734c19a6fff0801f734c19a"
+   },
+   {
+    "name": "ffs2play-2.6.0-1-x86_64.pkg.tar.zst",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.6.0-1-x86_64.pkg.tar.zst",
+    "size": 1000,
+    "digest": "sha256:4a3677a40d3fa31a4a3677a40d3fa31a4a3677a40d3fa31a4a3677a40d3fa31a"
+   },
+   {
+    "name": "notes.txt",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/notes.txt",
+    "size": 1000,
+    "digest": "sha256:1bc44df83ac676c51bc44df83ac676c51bc44df83ac676c51bc44df83ac676c5"
+   }
+  ]
+ },
+ {
+  "tag_name": "2.5.1",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-11-01T12:00:00Z",
+  "html_url": "https://github.com/Artemia76/ffs2play/releases/tag/2.5.1",
+  "body": "## FFS2Play 2.5.1\n\nNotes.",
+  "assets": [
+   {
+    "name": "ffs2play_2_5_1_Windows.exe",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_5_1_Windows.exe",
+    "size": 1000
+   },
+   {
+    "name": "ffs2play_2_5_1_Darwin.dmg",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_5_1_Darwin.dmg",
+    "size": 1000,
+    "digest": "sha256:3c072c9f183d68283c072c9f183d68283c072c9f183d68283c072c9f183d6828"
+   },
+   {
+    "name": "ffs2play-2.5.1-x86_64.AppImage",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.1-x86_64.AppImage",
+    "size": 1000,
+    "digest": "sha256:001686c7dd855d29001686c7dd855d29001686c7dd855d29001686c7dd855d29"
+   },
+   {
+    "name": "ffs2play_2.5.1-1+debian13_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.5.1-1+debian13_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:4cf7e17b836a28be4cf7e17b836a28be4cf7e17b836a28be4cf7e17b836a28be"
+   },
+   {
+    "name": "ffs2play_2.5.1-1+ubuntu25.04_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.5.1-1+ubuntu25.04_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:4f7ab0f1d5309e304f7ab0f1d5309e304f7ab0f1d5309e304f7ab0f1d5309e30"
+   },
+   {
+    "name": "ffs2play_2.5.1-1+ubuntu25.10_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.5.1-1+ubuntu25.10_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:5307e5f2bd45a1705307e5f2bd45a1705307e5f2bd45a1705307e5f2bd45a170"
+   },
+   {
+    "name": "ffs2play-2.5.1-1.fc43.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.1-1.fc43.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:166a112090663311166a112090663311166a112090663311166a112090663311"
+   },
+   {
+    "name": "ffs2play-2.5.1-1.el10.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.1-1.el10.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:60420e081e0eaeb560420e081e0eaeb560420e081e0eaeb560420e081e0eaeb5"
+   },
+   {
+    "name": "ffs2play-2.5.1-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.1-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:5e643b79fcd4789d5e643b79fcd4789d5e643b79fcd4789d5e643b79fcd4789d"
+   },
+   {
+    "name": "ffs2play-2.5.1-1-x86_64.pkg.tar.zst",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.1-1-x86_64.pkg.tar.zst",
+    "size": 1000,
+    "digest": "sha256:32b418a3b0964a2932b418a3b0964a2932b418a3b0964a2932b418a3b0964a29"
+   },
+   {
+    "name": "notes.txt",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/notes.txt",
+    "size": 1000,
+    "digest": "sha256:1bc44df83ac676c51bc44df83ac676c51bc44df83ac676c51bc44df83ac676c5"
+   }
+  ]
+ },
+ {
+  "tag_name": "2.5.0",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-11-01T12:00:00Z",
+  "html_url": "https://github.com/Artemia76/ffs2play/releases/tag/2.5.0",
+  "body": "## FFS2Play 2.5.0\n\nNotes.",
+  "assets": [
+   {
+    "name": "ffs2play_2_5_0_Windows.exe",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_5_0_Windows.exe",
+    "size": 1000,
+    "digest": "sha256:6669a3bcaae818ef6669a3bcaae818ef6669a3bcaae818ef6669a3bcaae818ef"
+   },
+   {
+    "name": "ffs2play_2_5_0_Darwin.dmg",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_5_0_Darwin.dmg",
+    "size": 1000,
+    "digest": "sha256:58673a39630b35bb58673a39630b35bb58673a39630b35bb58673a39630b35bb"
+   },
+   {
+    "name": "ffs2play-2.5.0-x86_64.AppImage",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.0-x86_64.AppImage",
+    "size": 1000,
+    "digest": "sha256:40217eb5b266e9cc40217eb5b266e9cc40217eb5b266e9cc40217eb5b266e9cc"
+   },
+   {
+    "name": "ffs2play_2.5.0-1+debian13_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.5.0-1+debian13_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:1e46cf9819dd45471e46cf9819dd45471e46cf9819dd45471e46cf9819dd4547"
+   },
+   {
+    "name": "ffs2play_2.5.0-1+ubuntu25.04_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.5.0-1+ubuntu25.04_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:0ac1d09cd299cfcf0ac1d09cd299cfcf0ac1d09cd299cfcf0ac1d09cd299cfcf"
+   },
+   {
+    "name": "ffs2play_2.5.0-1+ubuntu25.10_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.5.0-1+ubuntu25.10_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:2064fef0aec3678f2064fef0aec3678f2064fef0aec3678f2064fef0aec3678f"
+   },
+   {
+    "name": "ffs2play-2.5.0-1.fc43.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.0-1.fc43.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:48c07ac1f9e1c6dd48c07ac1f9e1c6dd48c07ac1f9e1c6dd48c07ac1f9e1c6dd"
+   },
+   {
+    "name": "ffs2play-2.5.0-1.el10.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.0-1.el10.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:32d307a97e5fa4b132d307a97e5fa4b132d307a97e5fa4b132d307a97e5fa4b1"
+   },
+   {
+    "name": "ffs2play-2.5.0-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.0-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:4ce558db70bc55854ce558db70bc55854ce558db70bc55854ce558db70bc5585"
+   },
+   {
+    "name": "ffs2play-2.5.0-1-x86_64.pkg.tar.zst",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.5.0-1-x86_64.pkg.tar.zst",
+    "size": 1000,
+    "digest": "sha256:46751d33bf1a083e46751d33bf1a083e46751d33bf1a083e46751d33bf1a083e"
+   },
+   {
+    "name": "notes.txt",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/notes.txt",
+    "size": 1000,
+    "digest": "sha256:1bc44df83ac676c51bc44df83ac676c51bc44df83ac676c51bc44df83ac676c5"
+   }
+  ]
+ },
+ {
+  "tag_name": "2.4.3",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-11-01T12:00:00Z",
+  "html_url": "https://github.com/Artemia76/ffs2play/releases/tag/2.4.3",
+  "body": "## FFS2Play 2.4.3\n\nNotes.",
+  "assets": [
+   {
+    "name": "ffs2play_2_4_3_Windows.exe",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_4_3_Windows.exe",
+    "size": 1000,
+    "digest": "sha256:415b8df51d0951b0415b8df51d0951b0415b8df51d0951b0415b8df51d0951b0"
+   },
+   {
+    "name": "ffs2play_2_4_3_Darwin.dmg",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2_4_3_Darwin.dmg",
+    "size": 1000,
+    "digest": "sha256:5bd4ce962e046a865bd4ce962e046a865bd4ce962e046a865bd4ce962e046a86"
+   },
+   {
+    "name": "ffs2play-2.4.3-x86_64.AppImage",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.4.3-x86_64.AppImage",
+    "size": 1000,
+    "digest": "sha256:2365d3853417cf282365d3853417cf282365d3853417cf282365d3853417cf28"
+   },
+   {
+    "name": "ffs2play_2.4.3-1+debian13_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.4.3-1+debian13_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:6c6c89890f2502386c6c89890f2502386c6c89890f2502386c6c89890f250238"
+   },
+   {
+    "name": "ffs2play_2.4.3-1+ubuntu25.04_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.4.3-1+ubuntu25.04_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:37d8976dd83eebd937d8976dd83eebd937d8976dd83eebd937d8976dd83eebd9"
+   },
+   {
+    "name": "ffs2play_2.4.3-1+ubuntu25.10_amd64.deb",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play_2.4.3-1+ubuntu25.10_amd64.deb",
+    "size": 1000,
+    "digest": "sha256:2ba7d916c707a9362ba7d916c707a9362ba7d916c707a9362ba7d916c707a936"
+   },
+   {
+    "name": "ffs2play-2.4.3-1.fc43.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.4.3-1.fc43.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:40be1b5de1eadd2840be1b5de1eadd2840be1b5de1eadd2840be1b5de1eadd28"
+   },
+   {
+    "name": "ffs2play-2.4.3-1.el10.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.4.3-1.el10.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:022cc363b130f62e022cc363b130f62e022cc363b130f62e022cc363b130f62e"
+   },
+   {
+    "name": "ffs2play-2.4.3-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.4.3-1.opensuse_tumbleweed.20261020.x86_64.rpm",
+    "size": 1000,
+    "digest": "sha256:3b3248aabd22a7193b3248aabd22a7193b3248aabd22a7193b3248aabd22a719"
+   },
+   {
+    "name": "ffs2play-2.4.3-1-x86_64.pkg.tar.zst",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/ffs2play-2.4.3-1-x86_64.pkg.tar.zst",
+    "size": 1000,
+    "digest": "sha256:409beea033b93654409beea033b93654409beea033b93654409beea033b93654"
+   },
+   {
+    "name": "notes.txt",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/notes.txt",
+    "size": 1000,
+    "digest": "sha256:1bc44df83ac676c51bc44df83ac676c51bc44df83ac676c51bc44df83ac676c5"
+   }
+  ]
+ }
+]

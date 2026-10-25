@@ -62,7 +62,7 @@ try {
     }
     $base = "http://127.0.0.1:$port";
 
-    foreach (['test_crypto.php', 'test_web.php', 'test_client.php', 'test_flights.php'] as $test) {
+    foreach (['test_crypto.php', 'test_web.php', 'test_client.php', 'test_flights.php', 'test_update.php'] as $test) {
         try {
             require __DIR__ . '/' . $test;
         } catch (Throwable $e) {

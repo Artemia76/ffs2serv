@@ -26,6 +26,9 @@ final class Settings
         'smtp_pass' => '',
         'tile_url' => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         'tile_attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        // versions en dessous desquelles la mise à jour est obligatoire (vide : jamais)
+        'update_min_version_ffs2play' => '',
+        'update_min_version_xffs2play' => '',
     ];
 
     private ?array $values = null;
