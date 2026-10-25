@@ -25,6 +25,7 @@ use Ffs2\Web\HomeController;
 use Ffs2\Web\ProfileController;
 use Ffs2\Web\ServerController;
 use Ffs2\Web\TeamController;
+use Ffs2\Web\UpdateController;
 
 $app = App::boot();
 $router = $app->router();
@@ -46,9 +47,12 @@ $profile = new ProfileController($app);
 $servers = new ServerController($app);
 $teams = new TeamController($app);
 $admin = new AdminController($app);
+$updates = new UpdateController($app);
 
 $router->get('/', [$home, 'index']);
 $router->get('/api/live', [$home, 'live']);
+$router->get('/api/update', [$updates, 'check']);
+$router->get('/telechargements', [$updates, 'downloads']);
 
 $router->get('/register', fn () => $auth->registerForm());
 $router->post('/register', [$auth, 'register']);
@@ -98,6 +102,8 @@ $router->post('/admin/settings', [$admin, 'saveSettings']);
 $router->post('/admin/settings/test-mail', [$admin, 'testMail']);
 $router->post('/admin/settings/keys', [$admin, 'regenerateKeys']);
 $router->post('/admin/settings/migrate', [$admin, 'migrate']);
+$router->get('/admin/releases', [$admin, 'releases']);
+$router->post('/admin/releases/refresh', [$admin, 'refreshReleases']);
 
 try {
     if (!$router->dispatch(Request::method(), $router->currentPath())) {

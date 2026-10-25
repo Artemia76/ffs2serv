@@ -1,0 +1,40 @@
+[
+ {
+  "tag_name": "v2.2.0-beta1",
+  "draft": false,
+  "prerelease": true,
+  "published_at": "2026-11-01T12:00:00Z",
+  "html_url": "https://github.com/Artemia76/xffs2play/releases/tag/v2.2.0-beta1",
+  "body": "Beta.\n\nRequires: ffs2play >= 2.5.0\n",
+  "assets": [
+   {
+    "name": "xffs2play.zip",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/xffs2play.zip",
+    "size": 1000,
+    "digest": "sha256:4bddf0b1969bd6a74bddf0b1969bd6a74bddf0b1969bd6a74bddf0b1969bd6a7"
+   },
+   {
+    "name": "xffs2play_2_2_0.zip",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/xffs2play_2_2_0.zip",
+    "size": 1000,
+    "digest": "sha256:32fbb0e5de1f7a0032fbb0e5de1f7a0032fbb0e5de1f7a0032fbb0e5de1f7a00"
+   }
+  ]
+ },
+ {
+  "tag_name": "v2.1.0",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-11-01T12:00:00Z",
+  "html_url": "https://github.com/Artemia76/xffs2play/releases/tag/v2.1.0",
+  "body": "CSL from client.\r\nRequires: ffs2play >= 2.4.3\r\n",
+  "assets": [
+   {
+    "name": "xffs2play.zip",
+    "browser_download_url": "https://github.com/Artemia76/R/releases/download/T/xffs2play.zip",
+    "size": 1000,
+    "digest": "sha256:4bddf0b1969bd6a74bddf0b1969bd6a74bddf0b1969bd6a74bddf0b1969bd6a7"
+   }
+  ]
+ }
+]

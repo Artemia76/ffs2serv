@@ -38,7 +38,7 @@
 <?php if ($user === null): ?>
     <section class="card cta">
         <h2>Rejoignez les pilotes</h2>
-        <p>Créez un compte, installez <a href="https://github.com/Artemia76/ffs2play/releases">ffs2play</a> et volez à plusieurs
+        <p>Créez un compte, installez <a href="<?= e(url('/telechargements')) ?>">ffs2play</a> et volez à plusieurs
             sur MSFS, Prepar3D, FSX, X-Plane ou FlightGear, en pair à pair.</p>
         <p><a class="button" href="<?= e(url('/register')) ?>">Créer un compte</a> <a class="button ghost" href="<?= e(url('/login')) ?>">Se connecter</a></p>
     </section>

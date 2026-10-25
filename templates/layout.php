@@ -35,6 +35,7 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
             <a href="<?= e(url('/')) ?>"<?= $active('/') ?>>En direct</a>
             <a href="<?= e(url('/servers')) ?>"<?= $active('/servers') ?>>Serveurs</a>
             <a href="<?= e(url('/teams')) ?>"<?= $active('/teams') ?>>Équipes</a>
+            <a href="<?= e(url('/telechargements')) ?>"<?= $active('/telechargements') ?>>Téléchargements</a>
             <?php if ($currentUser !== null): ?>
                 <?php if ($currentUser['role'] === 'admin'): ?>
                     <a href="<?= e(url('/admin')) ?>"<?= $active('/admin') ?>>Administration</a>

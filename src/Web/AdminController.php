@@ -7,6 +7,7 @@ use Ffs2\Auth\AuthService;
 use Ffs2\Core\Migrator;
 use Ffs2\Core\Request;
 use Ffs2\Core\Settings;
+use Ffs2\Domain\AssetMatcher;
 use Ffs2\Domain\FlightTracker;
 use Ffs2\Domain\ServerRepository;
 use Ffs2\Domain\SlotRepository;
@@ -164,6 +165,11 @@ final class AdminController extends Controller
         if (isset($values['mail_transport']) && !in_array($values['mail_transport'], ['mail', 'smtp'], true)) {
             unset($values['mail_transport']);
         }
+        foreach (['update_min_version_ffs2play', 'update_min_version_xffs2play'] as $name) {
+            if (isset($values[$name]) && $values[$name] !== '' && AssetMatcher::parseVersion($values[$name]) === null) {
+                unset($values[$name]);
+            }
+        }
         $this->app->settings()->save($values);
         $this->flash('success', 'Réglages enregistrés.');
         $this->redirect('/admin/settings');
@@ -200,5 +206,37 @@ final class AdminController extends Controller
         $done = (new Migrator($this->app->db()))->migrate();
         $this->flash('success', $done ? 'Mises à jour appliquées : ' . implode(', ', $done) : 'La base de données est déjà à jour.');
         $this->redirect('/admin/settings');
+    }
+
+    public function releases(): void
+    {
+        $this->requireAdmin();
+        $catalog = $this->app->releases();
+        $apps = [];
+        foreach (AssetMatcher::APPS as $app) {
+            $releases = $catalog->releases($app);
+            $apps[$app] = [
+                'releases' => $releases,
+                'fetched_at' => $catalog->fetchedAt($app),
+                'stable' => AssetMatcher::latest($releases ?? [], 'stable'),
+                'beta' => AssetMatcher::latest($releases ?? [], 'beta'),
+            ];
+        }
+        $this->page('admin/releases', ['title' => 'Releases', 'apps' => $apps, 'settings' => $this->app->settings()]);
+    }
+
+    public function refreshReleases(): void
+    {
+        $this->checkCsrf();
+        $this->requireAdmin();
+        $failed = [];
+        foreach (AssetMatcher::APPS as $app) {
+            if (!$this->app->releases()->refresh($app)) {
+                $failed[] = $app;
+            }
+        }
+        $failed ? $this->flash('error', 'GitHub n\'a pas répondu pour : ' . implode(', ', $failed) . '. Le cache précédent reste utilisé.')
+                : $this->flash('success', 'Releases relues sur GitHub.');
+        $this->redirect('/admin/releases');
     }
 }
