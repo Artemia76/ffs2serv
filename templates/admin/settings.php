@@ -58,6 +58,15 @@ $checked = fn (string $name) => $settings->bool($name) ? ' checked' : '';
         <p class="muted small">Par défaut OpenStreetMap ; pour un trafic important, utilisez un fournisseur de tuiles dédié.</p>
     </section>
 
+    <section class="card">
+        <h2>Mises à jour</h2>
+        <div class="grid two">
+            <label>FFS2play : obligatoire en dessous de <input name="update_min_version_ffs2play" value="<?= e($settings->get('update_min_version_ffs2play')) ?>" placeholder="ex. 2.5.0" pattern="\d+\.\d+\.\d+"></label>
+            <label>xffs2play : obligatoire en dessous de <input name="update_min_version_xffs2play" value="<?= e($settings->get('update_min_version_xffs2play')) ?>" placeholder="ex. 2.1.0" pattern="\d+\.\d+\.\d+"></label>
+        </div>
+        <p class="muted small">Vide : la mise à jour reste facultative. Les versions publiées sont listées dans <a href="<?= e(url('/admin/releases')) ?>">Releases</a>.</p>
+    </section>
+
     <button type="submit" class="button">Enregistrer les réglages</button>
 </form>
 

@@ -30,7 +30,7 @@ foreach ($servers as $server) {
         <details<?= $online ? '' : ' open' ?>>
             <summary>Connecter ffs2play à ce site</summary>
             <ol class="steps">
-                <li>Installez <a href="https://github.com/Artemia76/ffs2play/releases">ffs2play</a> et lancez-le avec votre simulateur.</li>
+                <li>Installez <a href="<?= e(url('/telechargements')) ?>">ffs2play</a> et lancez-le avec votre simulateur.</li>
                 <li>Ouvrez <em>Profils</em> et créez un profil avec :
                     <dl class="kv">
                         <dt>URL</dt><dd><code class="copy"><?= e($serverUrl) ?></code></dd>

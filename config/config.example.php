@@ -22,6 +22,8 @@ return [
     'debug' => false,
     // transport d'e-mail imposé (file : écrit les e-mails dans storage/mail, tests) ; absent = réglage du back-office
     // 'mail_transport' => 'file',
+    // jeton GitHub facultatif (lecture des releases publiques : relève la limite de 60 requêtes / heure)
+    // 'github' => ['token' => ''],
     // chemins facultatifs
     // 'paths' => ['keys' => __DIR__ . '/keys', 'storage' => __DIR__ . '/../storage'],
 ];
