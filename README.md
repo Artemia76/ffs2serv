@@ -1,62 +1,117 @@
-# FFS2play standalone server
+# Portail FFS2play
 
-Serveur de mise en relation des joueurs [FFS2play](https://github.com/Artemia76/ffs2play) : il authentifie
-les clients avec le mot de passe de la session et leur communique la liste des joueurs connectés
-(adresse IP cryptée, IP locales, port P2P). Les échanges de position se font ensuite en pair à pair.
+Portail web et serveur de mise en relation pour [FFS2play](https://github.com/Artemia76/ffs2play),
+le multijoueur pair à pair pour MSFS, Prepar3D, FSX, X-Plane et FlightGear.
 
-Aucune base de données : chaque joueur connecté est un fichier JSON dans `nodb/Session_mp/`.
+- **Comptes pilotes** : inscription avec validation par e-mail, connexion, mot de passe oublié.
+  Le logiciel ffs2play se connecte avec l'indicatif et le mot de passe du site.
+- **En direct** : carte (OpenStreetMap) et tableau des pilotes connectés, par serveur, rafraîchis toutes les 5 s.
+- **Serveurs** publics ou privés (membres acceptés par leur propriétaire), **mode global**, **équipes**.
+- **Profil** : choix du serveur, historique des vols (détectés automatiquement du décollage à l'atterrissage,
+  avec leur trace), heures de vol et de connexion, appareils et simulateurs favoris, profil public.
+- **Back-office** : membres (activation, suspension, rôles), pilotes connectés (déconnexion), serveurs, équipes,
+  réglages (inscriptions, e-mails SMTP, carte), clés du serveur, mises à jour du schéma.
+
+PHP natif sans dépendance (aucun Composer), MariaDB ou MySQL. Se déploie par simple copie sur un hébergement mutualisé.
+
+> La version minimale sans base de données ni interface web (mot de passe de session commun) reste disponible :
+> tag [`v1-standalone`](https://github.com/Artemia76/ffs2serv/tree/v1-standalone).
 
 ## Prérequis
 
-- PHP >= 7.4 avec les extensions `openssl`, `mbstring`, `simplexml` et `xmlwriter` (présentes par défaut)
-- un serveur web exécutant PHP (Apache, nginx + php-fpm...) ; seul `action.php` doit être accessible
-
-Client supporté : FFS2play 2.x et suivants (Qt 5 et Qt 6 : le protocole est identique).
+- PHP 8.1 ou plus récent, extensions `pdo_mysql`, `openssl`, `mbstring`, `dom`, `simplexml`, `xmlwriter`
+- MariaDB 10.3+ ou MySQL 5.7+ (une base vide)
+- Apache avec `mod_rewrite` (fichiers `.htaccess` fournis) ou nginx
+- Client FFS2play 2.x ou plus récent
 
 ## Installation
 
-1. Copier les fichiers sur le serveur web.
-2. Générer la configuration (clés RSA, mot de passe de session) :
+1. Copiez tous les fichiers sur le serveur.
+2. Faites pointer le domaine (racine web) sur le dossier **`public/`**.
+   Si votre hébergeur ne le permet pas, laissez le domaine sur le dossier principal : le `.htaccess` racine
+   redirige tout vers `public/` et bloque l'accès au code, à la configuration et aux clés.
+3. Créez une base de données vide depuis le panneau de votre hébergeur.
+4. Ouvrez `https://votre-domaine/install/` : l'installeur vérifie les prérequis, crée les tables,
+   la paire de clés RSA du serveur, le compte administrateur et le serveur de jeu « Public ».
+   Il se verrouille ensuite (présence de `config/config.php`).
+5. Connectez-vous, puis dans **Administration › Réglages** configurez l'envoi d'e-mails
+   (fonction `mail()` de l'hébergeur ou serveur SMTP) et faites un envoi de test.
 
-        php tools/generate_config.php --name="Mon serveur" --password="mot de passe de la session"
+Installation en ligne de commande (VPS) — à lancer **sous l'utilisateur du serveur web** pour qu'il puisse
+écrire dans `config/` et `storage/` :
 
-   `config/config_gen.php` contient la clé privée du serveur : il n'est jamais versionné.
-   Le certificat est valide 10 ans (`--days` pour changer). Les clients récupèrent le certificat à chaque
-   connexion : changer les clés ne demande aucune mise à jour des clients.
-3. Vérifier que le serveur web peut écrire dans le dossier (création automatique de `nodb/Session_mp/`).
-4. Dans FFS2play, créer un profil avec l'URL du dossier (le client appelle `<URL>/action.php`),
-   un pseudo et le mot de passe de la session.
+    sudo -u www-data php bin/install.php --db-host=localhost --db-name=ffs2play --db-user=ffs2play --db-pass=... \
+        --admin-callsign=Admin --admin-email=admin@example.org --admin-password=... --site-name="FFS2play"
 
-Le fichier `.htaccess` fourni bloque l'accès web à tout sauf `action.php` (Apache).
-Avec nginx, l'équivalent est :
+### nginx
 
-    location / { deny all; }
-    location = /action.php { allow all; include fastcgi_params; fastcgi_pass ...; }
+```nginx
+root /var/www/ffs2play/public;
+index index.php;
+location / { try_files $uri $uri/ /index.php?$query_string; }
+location ~ \.php$ { include fastcgi_params; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass unix:/run/php/php8.3-fpm.sock; }
+```
 
-## Protocole
+Sans réécriture d'URL possible, passez `'pretty_urls' => false` dans `config/config.php` (liens en `index.php/page`) ;
+l'installeur le détecte automatiquement.
 
-Le client envoie en POST un document XML `<FFS2Play><version>ffs2play_2_4_0</version><switch><data>...`
+### Hébergement sans dossier privé (YunoHost « My Webapp », nginx sans `.htaccess`)
 
-| `switch/data` | Rôle |
+Copiez **le contenu de `public/`** à la racine web, et à côté les dossiers `src/`, `templates/`, `database/`
+et `config/` (disposition « à plat »). Le portail le détecte tout seul. Dans ce cas, tout ce qui est secret est
+stocké dans des fichiers PHP (`config/config.php`, `config/keys/*.php`) : une requête web les exécute sans rien
+afficher. Ne copiez pas `tests/`, `docker/` ni `bin/` sur un tel hébergement.
+
+### Connecter ffs2play
+
+Dans ffs2play, créez un profil avec l'**URL du site** (ex. `https://ffs2play.fr`), votre **indicatif** et
+votre **mot de passe**. Le client appelle `<URL>/action.php`. La page profil du site rappelle ces informations.
+
+## Mise à jour
+
+Remplacez les fichiers (en conservant `config/` et `storage/`), puis appliquez les éventuelles mises à jour
+du schéma depuis **Administration › Réglages** ou avec `php bin/install.php --migrate`.
+
+### Depuis le serveur standalone
+
+L'URL appelée par les clients (`action.php`) ne change pas. Les comptes remplacent le mot de passe de session :
+chaque pilote crée son compte sur le site avec l'indicatif qu'il utilise dans ffs2play. L'ancien
+`config/config_gen.php` n'est plus utilisé ; une nouvelle paire de clés est générée à l'installation
+(les clients récupèrent le certificat à chaque connexion, aucune mise à jour de leur côté).
+
+## Fonctionnement
+
+| Client → `action.php` | Rôle |
 |---|---|
 | `hello` | renvoie le certificat RSA du serveur |
-| `verify` | le client envoie sa clé AES-256 cryptée en RSA PKCS#1 v1.5, son pseudo, le mot de passe crypté en AES-256-CFB, son port P2P et ses IP locales ; le serveur renvoie une clé de rappel et la liste des joueurs |
-| `liveupdate` | maintient le slot actif (toutes les quelques secondes) et renvoie la liste des joueurs |
-| `logout` | supprime le slot |
+| `verify` | authentification avec le compte du site : clé AES-256 du client cryptée en RSA PKCS#1 v1.5, mot de passe en AES-256-CFB ; ouverture du slot sur le serveur choisi dans le profil ; liste des pilotes |
+| `liveupdate` (30 s) | maintien du slot, position, phase de vol, liste des pilotes |
+| `atc` (5 s) | position (carte en direct, distance des vols) |
+| `logout` | fermeture du slot et de la connexion |
 
-Format AES partagé avec le client (`tools/crypto.cpp`) : `base64( chiffré . "-[--IV-[-" . IV 16 octets )`.
-Un joueur disparaît de la liste 40 s après sa dernière mise à jour ; son slot est supprimé après 5 minutes.
+La liste des pilotes (`whazzup`) contient les pilotes actifs du même serveur, plus ceux en mode global si le
+demandeur l'est aussi. Le demandeur y figure : le client l'ignore, sauf en **mode shadow** où il crée un pair
+superposé pour tester le P2P en boucle locale. L'attribut `team` vaut l'indicatif du chef d'équipe.
+Les adresses IP ne sont transmises qu'aux clients, cryptées avec leur propre clé ; elles ne sont jamais affichées sur le site.
 
-## Tests
+```
+public/        racine web : index.php (pages), action.php (client ffs2play), install/, assets/
+src/           Core (base, routeur, session, e-mails…), Auth, Client (protocole), Domain (serveurs, vols…), Web (pages)
+templates/     gabarits HTML et e-mails
+database/      migrations SQL
+config/        configuration et clés générées (jamais versionnées)
+storage/       données de travail
+```
 
-    php tests/run.php
+## Développement et tests
 
-ou, sans PHP installé :
+    docker compose up -d                       # http://localhost:8080 (installeur au premier lancement, base « db »)
+    docker compose exec web php tests/run.php  # tests (base ffs2play_test recréée à chaque fois)
 
-    docker run --rm -v "$PWD":/app -w /app php:8.3-cli php tests/run.php
-
-Les tests vérifient la compatibilité du chiffrement avec le client (vecteur de référence OpenSSL) et
-rejouent un scénario complet hello / verify / liveupdate / logout contre le serveur intégré de PHP.
+Les tests installent le portail dans une base jetable puis rejouent, contre le serveur intégré de PHP :
+le chiffrement (vecteur de référence OpenSSL du client), le protocole ffs2play complet (comptes, serveurs, mode
+global, équipes, positions), les pages web (inscription → e-mail → validation → profil, CSRF, droits, limitation
+des essais) et la détection des vols.
 
 ## Licence
 
